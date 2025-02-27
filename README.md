@@ -42,7 +42,7 @@ Tasks can be integrated with the Flip function and the progress can be counted a
 - Encourages motivation and goal-setting by rewarding achievements.
 - Data privacy is ensured, allowing users to manage their aspirations securely.
 
-##**Scope** 
+## **Scope** 
 This project is suitable for a team of 4–6 programmers to complete within one semester.
 
 **1. Flip Function**
