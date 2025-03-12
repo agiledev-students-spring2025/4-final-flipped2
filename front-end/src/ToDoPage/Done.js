@@ -193,7 +193,7 @@ function Done() {
                             <button
                                 className={`work-button ${selectedTask.status === 'in-progress' ? 'active' : ''}`}
                                 onClick={() => {
-                                    window.location.href = '/timerwfc'; // Navigate to timerwfc.js
+                                    window.location.href = '/pomodoro'; // Navigate to timerwfc.js
                                 }}
                             >
                                 Work on
