@@ -16,11 +16,15 @@ function InProgress() {
 
     const [selectedTask, setSelectedTask] = useState(null);
     const [showTaskPopup, setShowTaskPopup] = useState(false);
+    const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
 
     // Filter tasks and sort them by deadline
     const filteredTasks = tasks
         .filter(task => task.status === 'in-progress')
         .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+    // Current task for the overview section
+    const currentTask = filteredTasks[currentTaskIndex] || null;
 
     const navigateToSidebar = () => {
         console.log("Navigate to sidebar, wait for change");
@@ -28,6 +32,20 @@ function InProgress() {
 
     const navigateToAddTask = () => {
         console.log("Navigate to add task, wait for change");
+    };
+
+    // Navigate to previous task
+    const goToPreviousTask = () => {
+        if (currentTaskIndex > 0) {
+            setCurrentTaskIndex(currentTaskIndex - 1);
+        }
+    };
+
+    // Navigate to next task
+    const goToNextTask = () => {
+        if (currentTaskIndex < filteredTasks.length - 1) {
+            setCurrentTaskIndex(currentTaskIndex + 1);
+        }
     };
 
     // Update task status
@@ -63,10 +81,10 @@ function InProgress() {
             </div>
 
             <div className="tasks-list">
-                {filteredTasks.map(task => (
+                {filteredTasks.map((task, index) => (
                     <div
                         key={task.id}
-                        className="task-item"
+                        className={`task-item ${index === currentTaskIndex ? 'highlighted' : ''}`}
                         onClick={() => {
                             setSelectedTask(task);
                             setShowTaskPopup(true);
@@ -77,16 +95,65 @@ function InProgress() {
                 ))}
             </div>
 
-            {/* Navigate to Timer button */}
-            <div className="navigate-timer-container">
-                <button
-                    className="navigate-timer-button"
-                    onClick={() => {
-                        window.location.href = '/timerwfc'; // Navigate to timerwfc.js
-                    }}
-                >
-                    Start working
-                </button>
+            {/* Current Task Overview with integrated button */}
+            <div className="current-task-overview">
+                <div className="overview-header">
+                    <h3>Current Task</h3>
+                    <div className="task-navigation">
+                        <button
+                            className="nav-button"
+                            onClick={goToPreviousTask}
+                            disabled={currentTaskIndex === 0}
+                        >
+                            ▲
+                        </button>
+                        <button
+                            className="nav-button"
+                            onClick={goToNextTask}
+                            disabled={currentTaskIndex === filteredTasks.length - 1}
+                        >
+                            ▼
+                        </button>
+                    </div>
+                </div>
+
+                {currentTask ? (
+                    <>
+                        <div className="current-task-details">
+                            <h2>{currentTask.title}</h2>
+                            <p>Deadline: {currentTask.deadline}</p>
+                            <p>Status: {currentTask.status}</p>
+                        </div>
+
+                        {/* Start working button inside the overview section */}
+                        <div className="navigate-timer-container">
+                            <button
+                                className="navigate-timer-button"
+                                onClick={() => {
+                                    window.location.href = '/pomodoro'; // Navigate to timerwfc.js
+                                }}
+                            >
+                                Start working
+                            </button>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="no-tasks-message">
+                            <p>No tasks in progress</p>
+                        </div>
+
+                        {/* Disabled button for when no tasks are available */}
+                        <div className="navigate-timer-container">
+                            <button
+                                className="navigate-timer-button"
+                                disabled
+                            >
+                                Start working
+                            </button>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Popup screen */}
@@ -126,7 +193,7 @@ function InProgress() {
                             <button
                                 className={`work-button ${selectedTask.status === 'in-progress' ? 'active' : ''}`}
                                 onClick={() => {
-                                    window.location.href = '/timerwfc'; // Navigate to timerwfc.js
+                                    window.location.href = '/pomodoro'; // Navigate to timerwfc.js
                                 }}
                             >
                                 Work on
