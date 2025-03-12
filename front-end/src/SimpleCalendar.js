@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import Calendar from "react-calendar";
+import { Link } from "react-router-dom"; // for the sidebar
 import "react-calendar/dist/Calendar.css";
+
+
+
+
 
 const SimpleCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   return (
     <div className="calendar-container">
-      <div className="nav-bar">☰</div>
+      <Link to="/sidebar" className="nav-bar">☰</Link>
       <h1 className="welcome-text">Welcome To Flipped!</h1>
       <div className="calendar-wrapper">
         <Calendar 
