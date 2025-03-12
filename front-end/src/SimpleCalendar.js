@@ -1,18 +1,22 @@
 import React, { useState } from "react";
 import Calendar from "react-calendar";
+import { Link } from "react-router-dom"; // Import Link for navigation
 import "react-calendar/dist/Calendar.css";
 
 const SimpleCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  
   return (
     <div className="calendar-container">
-      <div className="nav-bar">☰</div>
+      {/* Wrap the navbar icon with Link */}
+      <Link to="/sidebar" className="nav-bar">☰</Link> {/* This will link to the sidebar */}
+
       <h1 className="welcome-text">Welcome To Flipped!</h1>
       <div className="calendar-wrapper">
         <Calendar 
           onChange={setSelectedDate} 
           value={selectedDate}
-          showNeighboringMonth={false} //prevents other dates from showing in incorrect month
+          showNeighboringMonth={false} // prevents other dates from showing in incorrect month
           tileClassName={({ date, view }) =>
             view === "month" && date.toDateString() === selectedDate.toDateString()
               ? "selected-date"
