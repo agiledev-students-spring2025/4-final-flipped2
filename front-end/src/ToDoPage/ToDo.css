@@ -1,0 +1,246 @@
+/* General Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+  }
+  
+  .task-board {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 0;
+    max-width: 100%;
+    margin: 0 auto;
+    background-color: white;
+  }
+  
+  /* Header Styles */
+  .board-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+  }
+  
+  .sidebar-button, .add-task-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #4285F4;
+  }
+  
+  /* Status Tabs Styles */
+  .status-tabs {
+    display: flex;
+    padding: 0 10px;
+    margin-bottom: 10px;
+  }
+  
+  .tab {
+    flex: 1;
+    padding: 15px 0;
+    cursor: pointer;
+    border: 1px solid #eee;
+    text-align: center;
+    border-radius: 4px;
+    margin: 0 5px;
+    font-size: 16px;
+    color: #333;
+    transition: background-color 0.3s ease;
+  }
+  
+  .tab.active {
+    background-color: #4285F4;
+    color: white;
+    border-color: #4285F4;
+  }
+  
+  /* Tasks List Styles */
+  .tasks-list {
+    padding: 0 10px;
+    margin-bottom: 10px;
+    overflow-y: auto; 
+    max-height: 150px;
+    border: 1px solid #eee; 
+    border-radius: 4px;
+  }
+  
+  .task-item {
+    padding: 10px;
+    border: 1px solid #eee;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .task-title {
+    font-size: 16px;
+    color: #333;
+    text-align: center;
+  }
+  
+  /* Calendar Section */
+.calendar-section {
+    flex: 1;
+    border-top: 1px solid #eee;
+    overflow: hidden;
+  }
+  
+  .calendar-scroll-container {
+    display: flex;
+    overflow-x: auto;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .date-column {
+    min-width: 33.33%;
+    border-right: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  
+  .date-column:last-child {
+    border-right: none;
+  }
+  
+  .date-header {
+    padding: 10px 0;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    background-color: #f9f9f9;
+  }
+  
+  .date-tasks {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+  }
+  
+  .grid-task {
+    padding: 12px;
+    border: 1px solid #eee;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 14px;
+    background-color: white;
+  }
+  
+  .grid-task:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Task Popup Styles */
+  .task-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+  }
+  
+  .task-detail-popup {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .task-details {
+    margin: 15px 0;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+  }
+  
+  .detail-item {
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #333;
+  }
+  
+/* Action Buttons: Edit, Delete, Close */
+.action-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  
+  .action-buttons button {
+    flex: 1;
+    margin: 0 5px;
+  }
+  
+  /* Status Buttons: Work on, Complete */
+  .status-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+  }
+  
+  .status-buttons button {
+    flex: 1;
+    margin: 0 5px;
+  }
+  
+  .work-button, .complete-button, .uncomplete-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .work-button {
+    background-color: #FBBC05;
+    color: #333;
+  }
+  
+  .complete-button {
+    background-color: #34A853;
+    color: white;
+  }
+
+  .uncomplete-button{
+    background-color: #fc3903;
+    color: white;
+  }
+
+  .navigate-timer-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.navigate-timer-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    background-color: #4285F4;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.navigate-timer-button:hover {
+    background-color: #357ABD;
+}
