@@ -50,7 +50,7 @@ function InProgress() {
     };
 
     return (
-        <div className="task-board">
+        <div className="task-board in-progress-board">
             <div className="board-header">
                 <button className="sidebar-button" onClick={navigateToSidebar}>☰</button>
                 <button className="add-task-button" onClick={navigateToAddTask}>+</button>
