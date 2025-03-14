@@ -36,44 +36,53 @@ const AddTaskPopup = ({ onSave }) => {
       <h2 className="popup-title">Add Task</h2>
       <div className="popup-content">
         <form>
-          <label htmlFor="tname">Task :</label>
-          <input
-            type="text"
-            id="tname"
-            name="tname"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <br /><br />
-          <label htmlFor="deadline">Deadline :</label>
-          <input
-            type="text"
-            id="date"
-            name="date"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
-          />
+          <div className="form-group">
+            <label htmlFor="tname">Task :</label>
+            <input
+              type="text"
+              id="tname"
+              name="tname"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <br /><br />
+            <label htmlFor="deadline">Deadline :</label>
+            <input
+              type="text"
+              id="date"
+              name="date"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+            />
+          </div>  
         </form>
-        <p>Status: {status}</p>
-        <br /><br />
-        <button type="button" onClick={() => setStatus('todo')}>
-          To-do
-        </button>
-        <br /><br />
-        <button type="button" onClick={() => setStatus('in-progress')}>
-          In-Process
-        </button>
-        <br /><br />
-        <button type="button" onClick={() => setStatus('done')}>
-          Done
-        </button>
-        <br /><br />
-        <button type="button" onClick={handleCancel}>
-          Cancel
-        </button>
-        <button type="button" onClick={handleSave}>
-          Save
-        </button>
+        <div className="status-group">
+          <div className="status-label">Status:</div>
+            <div className="status-controls">
+              <div className="status-buttons">
+                <button type="button" onClick={() => setStatus('todo')}>
+                  To-do
+                </button>
+                <button type="button" onClick={() => setStatus('in-progress')}>
+                  In-Process
+                </button>
+                <button type="button" onClick={() => setStatus('done')}>
+                  Done
+                </button>
+              </div>
+            <div className="status-display">
+              {status}
+            </div>
+          </div>
+        </div>
+        <div className="button-container">
+          <button type="button" className="cancel-button" onClick={handleCancel}>
+            Cancel
+          </button>
+          <button type="button" className="save-button" onClick={handleSave}>
+            Save
+          </button>
+        </div>
       </div>
     </div>
   );
