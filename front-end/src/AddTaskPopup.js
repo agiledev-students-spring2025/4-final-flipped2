@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './AddTaskPopup.css';
 
-const AddTaskPopup = ({ onClose, onSave }) => {
-  // Use "title" to match ToDo.js tasks
+const AddTaskPopup = ({ onSave }) => {
+  const navigate = useNavigate();
+
   const [title, setTitle] = useState('');
   const [deadline, setDeadline] = useState('');
   const [status, setStatus] = useState('');
@@ -11,12 +13,22 @@ const AddTaskPopup = ({ onClose, onSave }) => {
     const taskData = { title, deadline, status };
     console.log('Saving task:', taskData);
     if (onSave) onSave(taskData);
-    if (onClose) onClose();
+    
+    // navigate based on status
+    if (status === 'todo') {
+      navigate('/todo');
+    } else if (status === 'in-progress') {
+      navigate('/inprogress');
+    } else if (status === 'done') {
+      navigate('/done');
+    } else {
+      navigate('/todo');
+    }
   };
 
-  // Cancel closes popup
+  // Cancel navigate to To-Do
   const handleCancel = () => {
-    if (onClose) onClose();
+    navigate('/todo');
   };
 
   return (
