@@ -57,24 +57,22 @@ const AddTaskPopup = ({ onSave }) => {
           </div>  
         </form>
         <div className="status-group">
-          <div className="status-label">Status:</div>
-            <div className="status-controls">
-              <div className="status-buttons">
-                <button type="button" onClick={() => setStatus('todo')}>
-                  To-do
-                </button>
-                <button type="button" onClick={() => setStatus('in-progress')}>
-                  In-Process
-                </button>
-                <button type="button" onClick={() => setStatus('done')}>
-                  Done
-                </button>
-              </div>
-            <div className="status-display">
-              {status}
-            </div>
+          <div className="status-row">
+            <span className="status-label">Status:</span>
+            <span className="status-display">{status}</span>
           </div>
-        </div>
+            <div className="status-buttons">
+              <button type="button" onClick={() => setStatus('todo')}>
+                To-do
+              </button><br />
+              <button type="button" onClick={() => setStatus('in-progress')}>
+                In-Process
+              </button><br />
+              <button type="button" onClick={() => setStatus('done')}>
+                Done
+              </button><br />
+            </div>
+          </div><br />
         <div className="button-container">
           <button type="button" className="cancel-button" onClick={handleCancel}>
             Cancel
