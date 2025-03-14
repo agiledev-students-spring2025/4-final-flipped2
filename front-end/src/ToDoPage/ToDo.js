@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import '../App.css';
 import './ToDo.css';
+import { useNavigate } from 'react-router-dom';
 
 function ToDo() {
+    const navigate = useNavigate();
     // Make up data (change after database)
     const [tasks, setTasks] = useState([
         { id: 1, title: 'Learn React', status: 'todo', deadline: '2025-03-18' },
@@ -85,8 +87,7 @@ function ToDo() {
     };
 
     const navigateToAddTask = () => {
-        // 
-        console.log("Navigate to add task, wait for change");
+        navigate('/addtask');
     };
 
     // Update task status
