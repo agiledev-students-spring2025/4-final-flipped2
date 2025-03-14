@@ -28,7 +28,9 @@ const SimpleCalendar = () => {
         <h2>📅 Activities for {selectedDate.toDateString()}</h2>
         <p>No activities added yet.</p>
       </div>
-      <button className="floating-button">+</button>
+      <Link to="/add-event">
+        <button className="floating-button">+</button>
+      </Link>
     </div>
   );
 };
