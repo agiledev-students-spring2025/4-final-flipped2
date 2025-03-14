@@ -25,6 +25,9 @@ function App() {
           <Route path="/todo" element={<ToDo />} />
           <Route path="/inprogress" element={<InProgress />} />
           <Route path="/done" element={<Done />} />
+          <Route path="/addtask" element={<AddTaskPopup />} />
+          <Route path="/addevent" element={<AddEventPopup />} />
+
         </Routes>
       </div>
     </Router>
