@@ -5,8 +5,8 @@ import ToDo from "./ToDoPage/ToDo";
 import InProgress from "./ToDoPage/InProgress";
 import Done from "./ToDoPage/Done";
 import PomodoroTimer from "./components/PomodoroTimer"; // Import PomodoroTimer
-import AddTaskPopup from "./components/AddTaskPopup";
-import AddEventPopup from "./components/AddEventPopup";
+import AddTaskPopup from "./AddTaskPopup";
+import AddEventPopup from "./AddEventPopup";
 import "./App.css";
 
 function App() {
