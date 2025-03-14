@@ -5,6 +5,8 @@ import ToDo from "./ToDoPage/ToDo";
 import InProgress from "./ToDoPage/InProgress";
 import Done from "./ToDoPage/Done";
 import PomodoroTimer from "./components/PomodoroTimer"; // Import PomodoroTimer
+import AddTaskPopup from "./AddTaskPopup";
+import AddEventPopup from "./AddEventPopup";
 import "./App.css";
 
 function App() {
@@ -25,6 +27,9 @@ function App() {
           <Route path="/todo" element={<ToDo />} />
           <Route path="/inprogress" element={<InProgress />} />
           <Route path="/done" element={<Done />} />
+          <Route path="/addtask" element={<AddTaskPopup />} />
+          <Route path="/addevent" element={<AddEventPopup />} />
+
         </Routes>
       </div>
     </Router>
