@@ -7,7 +7,9 @@ import Done from "./ToDoPage/Done";
 import PomodoroTimer from "./components/PomodoroTimer"; // Import PomodoroTimer
 import AddTaskPopup from "./AddTaskPopup";
 import AddEventPopup from "./AddEventPopup";
+import Sidebar from "./components/Sidebar"; // Import Sidebar
 import "./App.css";
+
 
 function App() {
   return (
@@ -22,8 +24,9 @@ function App() {
       */}
         <Routes>
           <Route path="/" element={<SimpleCalendar />} />
-          <Route path="/pomodoro" element={<PomodoroTimer />} /> {/* Add this route */}
-          
+          <Route path="/sidebar" element={<Sidebar />} />
+          <Route path="/pomodoro" element={<PomodoroTimer />} /> 
+  
           <Route path="/todo" element={<ToDo />} />
           <Route path="/inprogress" element={<InProgress />} />
           <Route path="/done" element={<Done />} />
