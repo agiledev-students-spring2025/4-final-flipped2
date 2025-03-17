@@ -6,10 +6,10 @@ import Signuppage from "./LoginandSignup/Signuppage";
 import ToDo from "./ToDoPage/ToDo";
 import InProgress from "./ToDoPage/InProgress";
 import Done from "./ToDoPage/Done";
-import PomodoroTimer from "./components/PomodoroTimer"; // Import PomodoroTimer
+import PomodoroTimer from "./PomodoroTimer"; // Import PomodoroTimer
 import AddTaskPopup from "./AddTaskPopup";
 import AddEventPopup from "./AddEventPopup";
-import Sidebar from "./components/Sidebar"; // Import Sidebar
+import Sidebar from "./Sidebar"; // Import Sidebar
 import "./App.css";
 
 
