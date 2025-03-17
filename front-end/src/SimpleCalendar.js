@@ -8,7 +8,7 @@ const SimpleCalendar = () => {
   
   return (
     <div className="calendar-container">
-      {/* Wrap the navbar icon with Link */}
+      
       <Link to="/sidebar" className="nav-bar">☰</Link> {/* This will link to the sidebar */}
 
       <h1 className="welcome-text">Welcome To Flipped!</h1>
