@@ -77,11 +77,13 @@ function Done() {
     });
 
     const navigateToSidebar = () => {
+        navigate('sidebar');
         console.log("Navigate to sidebar, wait for change");
     };
 
     const navigateToAddTask = () => {
         navigate('/addtask');
+        console.log("Navigate to addevent, wait for change");
     };
 
     // Update task status
@@ -174,7 +176,7 @@ function Done() {
                             <button
                                 className="edit-button"
                                 onClick={() => {
-                                    window.location.href = '/addEventwfc'; // Navigate to addEventwfc.js
+                                    window.location.href = '/addevent'; // Navigate to addEventwfc.js
                                 }}
                             >
                                 Edit

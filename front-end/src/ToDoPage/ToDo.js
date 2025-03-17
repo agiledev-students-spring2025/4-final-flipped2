@@ -82,7 +82,7 @@ function ToDo() {
     });
 
     const navigateToSidebar = () => {
-        // window.location.href = '/sideBar'; 
+        window.location.href = '/sidebar'; 
         console.log("Navigate to sidebar, wait for change");
     };
 
@@ -180,7 +180,7 @@ function ToDo() {
                             <button
                                 className="edit-button"
                                 onClick={() => {
-                                    window.location.href = '/addEventwfc'; // Navigate to addEventwfc.js
+                                    window.location.href = '/addevent'; // Navigate to addEventwfc.js
                                 }}
                             >
                                 Edit
