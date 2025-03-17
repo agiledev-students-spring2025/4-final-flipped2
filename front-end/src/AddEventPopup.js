@@ -15,12 +15,12 @@ const AddEventPopup = ({ onSave }) => {
     console.log('Saving event:', eventData);
     if (onSave) onSave(eventData);
     // Navigate to the SimpleCalendar
-    navigate('/');
+    navigate('/calendar');
   };
 
   // Cancel button navigates back to SimpleCalendar
   const handleCancel = () => {
-    navigate('/');
+    navigate('/calendar');
   };
 
   return (
