@@ -29,10 +29,12 @@ function InProgress() {
     const currentTask = filteredTasks[currentTaskIndex] || null;
 
     const navigateToSidebar = () => {
+        navigate('/sidebar');
         console.log("Navigate to sidebar, wait for change");
     };
 
     const navigateToAddTask = () => {
+        navigate('/addtask');
         console.log("Navigate to add task, wait for change");
     };
 
@@ -174,7 +176,7 @@ function InProgress() {
                             <button
                                 className="edit-button"
                                 onClick={() => {
-                                    window.location.href = '/addEventwfc'; // Navigate to addEventwfc.js
+                                    window.location.href = '/addevent'; // Navigate to addEventwfc.js
                                 }}
                             >
                                 Edit

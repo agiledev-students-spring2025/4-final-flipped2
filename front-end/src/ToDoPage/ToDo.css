@@ -208,21 +208,23 @@ body {
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.3s ease;
+    position: relative;
+    z-index: 5;
   }
   
   .work-button {
-    background-color: #FBBC05;
-    color: #333;
+    background-color: #FBBC05 !important;
+    color: #333 !important;
   }
   
   .complete-button {
-    background-color: #34A853;
-    color: white;
+    background-color: #34A853 !important;
+    color: white !important;
   }
-
-  .uncomplete-button{
-    background-color: #fc3903;
-    color: white;
+  
+  .uncomplete-button {
+    background-color: #fc3903 !important;
+    color: white !important;
   }
 
   .navigate-timer-container {
@@ -251,7 +253,7 @@ body {
   position: relative;
   margin: 0;
   padding: 0;
-  flex: 1; /* Make it take all available space */
+  flex: 1; 
   display: flex;
   flex-direction: column;
 }
@@ -305,10 +307,10 @@ body {
 .current-task-details {
   padding: 20px 20px 0 20px;
   text-align: center;
-  flex: 1; /* Take available space */
+  flex: 1; 
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Center content vertically */
+  justify-content: center; 
 }
 
 .current-task-details h2 {
@@ -340,8 +342,8 @@ body {
   display: flex;
   justify-content: center;
   padding: 20px 0;
-  margin-top: auto; /* Push to bottom */
-  background-color: #f5f5f5; /* Same as the task overview background */
+  margin-top: auto; 
+  background-color: #f5f5f5; 
 }
 
 .navigate-timer-button {
