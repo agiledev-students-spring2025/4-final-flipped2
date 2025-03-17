@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './PomodoroTimer.css';
+import { Link } from "react-router-dom"; //
 
 const PomodoroTimer = () => {
   // Default 30 minutes in seconds (30 * 60)
@@ -86,9 +87,10 @@ const PomodoroTimer = () => {
 
   return (
     <div className="pomodoro-container">
+      <Link to="/sidebar" className="nav-bar">☰</Link> 
       <div className="timer-wrapper">
         <div className="timer-circle-container">
-          <svg className="timer-circle" width="280" height="280">
+          <svg className="timer-circle" viewBox="0 0 280 280">
             <circle 
               className="timer-circle-bg" 
               cx="140" 
