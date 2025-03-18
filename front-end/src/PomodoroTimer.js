@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import './PomodoroTimer.css'; // for Pomodorotimer.js
 import { Link } from "react-router-dom"; // for navbar
 
+
+
+// Following is the Pomodoro Timer
+// Timer is set for 30 minutes 
 const PomodoroTimer = () => {
   // Default 30 minutes in seconds (30 * 60)
   const DEFAULT_TIME = 30 * 60;
