@@ -3,12 +3,17 @@ import './PomodoroTimer.css'; // for Pomodorotimer.js
 import { Link } from "react-router-dom"; // for navbar
 
 const PomodoroTimer = () => {
+
+  // Note: Need to change URL for .env for deployment 
+  const BACKEND_URL = "http://localhost:5001"; // Define backend URL here
+
   // Default 30 minutes in seconds (30 * 60)
   const DEFAULT_TIME = 30 * 60;
   const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME);
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [reward, setReward] = useState(null); // for backend 
   const timerRef = useRef(null);
 
   // Format time to MM:SS
@@ -25,8 +30,23 @@ const PomodoroTimer = () => {
 
   // Start timer
   const startTimer = () => {
+
+     // Log session start to backend
+     fetch(`${BACKEND_URL}/api/start-session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: "user1" })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Session start:', data);
+      })
+      .catch(err => console.error('Error starting session:', err));
+
+    // set the timer to starts and stop showing the controls
     setIsRunning(true);
     setShowControls(false);
+
   };
 
   // Pause timer
@@ -40,6 +60,22 @@ const PomodoroTimer = () => {
     pauseTimer();
     setTimeLeft(DEFAULT_TIME);
     setIsBreak(false);
+    endSession(); // Fetch reward from backend
+  };
+
+  // Fetch reward from backend when session ends
+  const endSession = () => {
+    fetch(`${BACKEND_URL}/api/end-session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: "user1" })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Session ended:', data);
+        setReward(data.reward); // Store the reward in state
+      })
+      .catch(err => console.error('Error ending session:', err));
   };
 
   // Flip phone function (would be triggered by gyroscope in real app)
@@ -65,6 +101,7 @@ const PomodoroTimer = () => {
             if (!isBreak) {
               // Show tarot card or quote here (just a placeholder)
               alert('Focus session complete! Here\'s your reward!');
+              endSession(); // Fetch and show the reward from backend
             }
             
             return 0;
@@ -141,6 +178,14 @@ const PomodoroTimer = () => {
             Simulate Flip
           </button>
         </div>
+        {/* Display Reward Popup */}
+        {reward && (
+          <div className="reward-popup">
+            <h3>Congratulations!</h3>
+            <p>{reward.name ? `${reward.name}: ${reward.description}` : reward}</p>
+            <button onClick={() => setReward(null)}>Close</button>
+          </div>
+        )}
       </div>
     </div>
   );
