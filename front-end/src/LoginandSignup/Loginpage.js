@@ -1,23 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
 
-const LoginPage = () => {
+const Loginpage = () => {
+  const [mockData, setMockData] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  useEffect(() => {
+    fetch('/api/data')
+      .then((response) => response.json()) 
+      .then((data) => setMockData(data))   
+      .catch((error) => console.error("Error fetching data:", error)); 
+  }, []); 
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-
-    const storedEmail = localStorage.getItem("userEmail");
-    const storedPassword = localStorage.getItem("userPassword");
-
-    if (email === storedEmail && password === storedPassword) {
-      navigate("/calendar"); 
-    } else {
-      alert("Invalid email or password.");
+  
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+  
+      const data = await res.json();
+  
+      if (res.ok) {
+        navigate("/calendar");
+      } else {
+        alert(data.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Server error during login');
     }
   };
+  
 
   return (
     <div className="auth-container">
@@ -52,4 +71,8 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default Loginpage;
+
+
+
+

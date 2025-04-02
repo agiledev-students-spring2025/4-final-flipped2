@@ -1,16 +1,19 @@
 {
   "name": "back-end",
-  "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "test": "node --experimental-vm-modules node_modules/mocha/bin/mocha",
+    "coverage": "c8 node --experimental-vm-modules node_modules/mocha/bin/mocha"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "c8": "^8.0.0",
+    "chai": "^5.2.0",
+    "chai-http": "^4.4.0",
+    "mocha": "^10.2.0"
   }
 }
