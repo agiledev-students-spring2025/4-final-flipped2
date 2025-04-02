@@ -12,6 +12,7 @@ app.use(cors());
 // In-memory store for tracking user sessions by userId and date.
 // In production, use a proper database.
 const userSessions = {};
+let mockUsers = [];
 
 // Sample tarot cards and motivational quotes.
 const tarotCards = [
@@ -66,7 +67,29 @@ app.get('/pomodoro', (req, res) => {
   res.send('Flipped Pomodoro is running');
 });
 
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.get('/api/data', (req, res) => {
+  res.json({ message: 'Check to see if it works', status: 'success' });
 });
+
+app.post('/api/signup', (req, res) => {
+  const { email, password } = req.body;
+  const userExists = mockUsers.find(user => user.email === email);
+  if (userExists) {
+    return res.status(400).json({ status: 'fail', message: 'User already exists' });
+  }
+  mockUsers.push({ email, password });
+  res.json({ status: 'success', message: 'User registered' });
+});
+
+app.post('/api/login', (req, res) => {
+  const { email, password } = req.body;
+  const user = mockUsers.find(user => user.email === email && user.password === password);
+  if (user) {
+    res.json({ status: 'success', message: 'Login successful' });
+  } else {
+    res.status(401).json({ status: 'fail', message: 'Invalid credentials' });
+  }
+});
+
+export default app; 
+
