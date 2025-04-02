@@ -2,5 +2,19 @@
   "dependencies": {
     "react-calendar": "^5.1.0",
     "react-router-dom": "^7.3.0"
+<<<<<<< HEAD
   }
+=======
+  },
+  "name": "4-final-flipped2",
+  "version": "1.0.0",
+  "description": "## **Project Members** - Leo Zhou (xz3395) - Jason Tran (ht2354) - Babamayokun Okudero (bo2044) - Sandy Li (rl4385) - Frank Su (fcs2056)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+>>>>>>> ae71520bd366e6fb05659c6c594548b18bfce411
 }
