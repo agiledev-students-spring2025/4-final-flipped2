@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import path from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -235,20 +234,16 @@ app.post('/api/end-session', (req, res) => {
 });
 
 // Common routes
-
-// A simple test route
 app.get('/', (req, res) => {
-  res.send('Express server is running!');
+  res.send('basic app route is running');
+});
+app.get('/pomodoro', (req, res) => {
+  res.send('Flipped Pomodoro is running');
 });
 
-// Check if sever is good
-app.get('/api/check', (req, res) => {
-  res.json({ status: 'ok', message: 'Server is good' });
-});
 
-// Start the server
 app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
 
 export {app};
