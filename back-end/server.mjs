@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5001;
 
 app.use(cors());
 
-// Middleware to parse JSON bodies(if needed)
+// Middleware to parse JSON bodies (if needed)
 app.use(express.json());
 
 // Todo API start

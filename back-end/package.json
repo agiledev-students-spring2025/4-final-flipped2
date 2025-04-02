@@ -1,6 +1,7 @@
 {
   "name": "back-end",
   "version": "1.0.0",
+  "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
@@ -8,6 +9,10 @@
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules mocha --watch test.js",
     "test:coverage": "NODE_OPTIONS=--experimental-vm-modules c8 mocha test.js"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.2",
