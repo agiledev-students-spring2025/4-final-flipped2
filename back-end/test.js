@@ -128,4 +128,40 @@ describe('ToDo API', () => {
     });
 
     // Todo section test end
+
+    // Pomodoro session test
+describe('Pomodoro Session API', () => {
+    const testUserId = 'test-user-123';
+
+    it('should start a session successfully', async () => {
+        const res = await request(app)
+            .post('/api/start-session')
+            .send({ userId: testUserId });
+
+        expect(res.status).to.equal(200);
+        expect(res.body).to.have.property('message', 'Session started successfully.');
+    });
+
+    it('should end the first session of the day with a tarot card', async () => {
+        const res = await request(app)
+            .post('/api/end-session')
+            .send({ userId: testUserId });
+
+        expect(res.status).to.equal(200);
+        expect(res.body).to.have.property('message', 'Session ended successfully.');
+        expect(res.body.reward).to.have.property('name');  // Tarot card
+        expect(res.body.reward).to.have.property('description');
+    });
+
+    it('should end a second session of the same day with a motivational quote', async () => {
+        const res = await request(app)
+            .post('/api/end-session')
+            .send({ userId: testUserId });
+
+        expect(res.status).to.equal(200);
+        expect(res.body).to.have.property('message', 'Session ended successfully.');
+        expect(res.body.reward).to.be.a('string');  // Motivational quote
+    });
+});
+// pomodoro test end 
 });
