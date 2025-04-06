@@ -182,6 +182,81 @@ app.get('/api/calendar', (req, res) => {
 
 // end of todo section
 
+// Calendar event section (added for Huy's calendar app)
+
+let events = [
+  { id: 1, title: "Doctor Appointment", date: "2025-04-08", time: "14:00" },
+  { id: 2, title: "Meeting with Team", date: "2025-04-09", time: "10:00" }
+];
+
+const generateEventId = () => {
+  return events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1;
+};
+
+// Get all events
+app.get('/api/events', (req, res) => {
+  res.json(events);
+});
+
+// Get events by date
+app.get('/api/events/date/:date', (req, res) => {
+  const { date } = req.params;
+  const result = events.filter(event => event.date === date);
+  res.json(result);
+});
+
+// Add new event
+app.post('/api/events', (req, res) => {
+  const { title, date, time } = req.body;
+  
+  if (!title || !date || !time) {
+    return res.status(400).json({ error: 'Title, date, and time are required.' });
+  }
+
+  const newEvent = {
+    id: generateEventId(),
+    title,
+    date,
+    time
+  };
+
+  events.push(newEvent);
+  res.status(201).json(newEvent);
+});
+
+// Update event
+app.put('/api/events/:id', (req, res) => {
+  const eventId = parseInt(req.params.id);
+  const { title, date, time } = req.body;
+  const index = events.findIndex(e => e.id === eventId);
+
+  if (index === -1) {
+    return res.status(404).json({ error: 'Event not found' });
+  }
+
+  events[index] = {
+    ...events[index],
+    title: title || events[index].title,
+    date: date || events[index].date,
+    time: time || events[index].time
+  };
+
+  res.json(events[index]);
+});
+
+// Delete event
+app.delete('/api/events/:id', (req, res) => {
+  const eventId = parseInt(req.params.id);
+  const index = events.findIndex(e => e.id === eventId);
+
+  if (index === -1) {
+    return res.status(404).json({ error: 'Event not found' });
+  }
+
+  const deleted = events.splice(index, 1);
+  res.json(deleted[0]);
+});
+
 // Pomodoro section implementation
 
 // In-memory store for tracking user sessions by userId and date.

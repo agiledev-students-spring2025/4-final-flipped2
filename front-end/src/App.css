@@ -11,8 +11,8 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
+  min-height: 100vh;
+  padding-bottom: 100px;
 }
 
 .calendar-container {
@@ -27,12 +27,12 @@ html, body {
 .welcome-text {
   font-size: 40px;
   font-weight: bold;
-  position: absolute;
-  top: 2%;
-  left: 50%;
-  transform: translateX(-50%);
+  margin-top: 20px;
+  margin-bottom: 20px;
   text-align: center;
+  color: #333;
 }
+
 
 .calendar-wrapper {
   display: flex;
@@ -131,4 +131,42 @@ html, body {
 .page-links a:hover {
   background: #4CAF50;
   color: white;
+}
+
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+  align-items: center;
+}
+
+.event-card {
+  background-color: #e9f5ec;
+  border: 2px solid #4CAF50;
+  border-radius: 12px;
+  padding: 15px 20px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  text-align: left;
+}
+
+.event-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 6px 12px rgba(0,0,0,0.15);
+}
+
+.event-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2e7d32;
+  margin-bottom: 5px;
+}
+
+.event-time {
+  font-size: 14px;
+  color: #555;
 }
