@@ -1,3 +1,12 @@
-The back-end of your project will live in this directory.
+# Project Setup
 
-You will most likely initiate the back-end Node.js/Express.js server by running the "npm init" command from within this directory.
+## Installation
+1. Clone the repository
+2. Run `npm install` in both front-end and back-end directories
+
+## Running the Application
+1. Start the backend: `node server.mjs`
+2. The frontend will be served on port 5001
+
+## Testing
+Run tests with: `npm test`

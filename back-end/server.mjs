@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import path from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -9,29 +10,34 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 
 // Middleware to parse JSON bodies (if needed)
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../front-end/public')));
+app.use(express.static(path.join(__dirname, '../front-end/src')));
 
 // Todo API start
 
 // Mock database
 let tasks = [
-  { id: 1, title: 'Learn React', status: 'todo', deadline: '2025-03-18' },
-  { id: 2, title: 'Build a ToDo App', status: 'todo', deadline: '2025-03-19' },
-  { id: 3, title: 'Develop Project', status: 'todo', deadline: '2025-03-19' },
-  { id: 4, title: 'Fix UI Bugs', status: 'todo', deadline: '2025-03-20' },
-  { id: 5, title: 'Add Unit Tests', status: 'todo', deadline: '2025-03-20' },
-  { id: 6, title: 'Update Documentation', status: 'todo', deadline: '2025-03-21' },
-  { id: 7, title: 'Present to Team', status: 'todo', deadline: '2025-03-21' },
-  { id: 8, title: 'Learn Java', status: 'in-progress', deadline: '2025-03-18' },
-  { id: 9, title: 'Build a timer App', status: 'in-progress', deadline: '2025-03-19' },
-  { id: 10, title: 'Developing', status: 'in-progress', deadline: '2025-03-19' },
-  { id: 11, title: 'Fix js Bugs', status: 'in-progress', deadline: '2025-03-20' },
-  { id: 12, title: 'Learn python', status: 'done', deadline: '2025-03-18' },
-  { id: 13, title: 'Build a add event App', status: 'done', deadline: '2025-03-19' },
-  { id: 14, title: 'Fix UX Bugs', status: 'done', deadline: '2025-03-20' }
+  { id: 1, title: 'Learn React', status: 'todo', deadline: '2025-03-30' },
+  { id: 2, title: 'Build a ToDo App', status: 'todo', deadline: '2025-03-31' },
+  { id: 3, title: 'Develop Project', status: 'todo', deadline: '2025-03-31' },
+  { id: 4, title: 'Fix UI Bugs', status: 'todo', deadline: '2025-03-31' },
+  { id: 5, title: 'Add Unit Tests', status: 'todo', deadline: '2025-03-31' },
+  { id: 6, title: 'Update Documentation', status: 'todo', deadline: '2025-04-01' },
+  { id: 7, title: 'Present to Team', status: 'todo', deadline: '2025-04-01' },
+  { id: 8, title: 'Learn Java', status: 'in-progress', deadline: '2025-04-01' },
+  { id: 9, title: 'Build a timer App', status: 'in-progress', deadline: '2025-04-02' },
+  { id: 10, title: 'Developing', status: 'in-progress', deadline: '2025-04-03' },
+  { id: 11, title: 'Fix js Bugs', status: 'in-progress', deadline: '2025-04-05' },
+  { id: 12, title: 'Learn python', status: 'done', deadline: '2025-04-06' },
+  { id: 13, title: 'Build a add event App', status: 'done', deadline: '2025-04-07' },
+  { id: 14, title: 'Fix UX Bugs', status: 'done', deadline: '2025-04-08' }
 ];
 
 // Generate new ID
@@ -46,7 +52,7 @@ app.get('/api/tasks', (req, res) => {
 
 // Get tasks by status
 app.get('/api/tasks/:status', (req, res) => {
-  const status = req.params.status;
+  const status = req.params.status.toLowerCase();
   const filteredTasks = tasks.filter(task => task.status === status)
                             .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
   res.json(filteredTasks);
@@ -316,6 +322,10 @@ app.get('/pomodoro', (req, res) => {
   res.send('Flipped Pomodoro is running');
 });
 
+// Static Files
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../front-end/public/index.js'));
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
