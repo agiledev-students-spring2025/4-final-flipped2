@@ -129,39 +129,66 @@ describe('ToDo API', () => {
 
     // Todo section test end
 
-    // Pomodoro session test
-describe('Pomodoro Session API', () => {
-    const testUserId = 'test-user-123';
+     // Pomodoro API tests
+describe('Pomodoro API', () => {
+    const testUserId = 'testuser';
 
-    it('should start a session successfully', async () => {
-        const res = await request(app)
-            .post('/api/start-session')
-            .send({ userId: testUserId });
-
-        expect(res.status).to.equal(200);
-        expect(res.body).to.have.property('message', 'Session started successfully.');
+    describe('POST /api/start-session', () => {
+        it('should start a session successfully', async () => {
+            const res = await request(app)
+                .post('/api/start-session')
+                .send({ userId: testUserId });
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Session started successfully.');
+        });
     });
 
-    it('should end the first session of the day with a tarot card', async () => {
-        const res = await request(app)
-            .post('/api/end-session')
-            .send({ userId: testUserId });
+    describe('POST /api/end-session', () => {
+        it('should return a tarot card reward for the first session of the day', async () => {
+            const res = await request(app)
+                .post('/api/end-session')
+                .send({ userId: testUserId });
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Session ended successfully.');
+            expect(res.body.reward).to.be.an('object');
+            expect(res.body.reward).to.have.property('name');
+            expect(res.body.reward).to.have.property('description');
+        });
 
-        expect(res.status).to.equal(200);
-        expect(res.body).to.have.property('message', 'Session ended successfully.');
-        expect(res.body.reward).to.have.property('name');  // Tarot card
-        expect(res.body.reward).to.have.property('description');
+        it('should return a motivational quote for a subsequent session on the same day', async () => {
+            const res = await request(app)
+                .post('/api/end-session')
+                .send({ userId: testUserId });
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Session ended successfully.');
+            expect(res.body.reward).to.be.a('string');
+            const quotes = ['Believe in yourself!', 'Keep pushing forward!', 'Every step is progress!'];
+            expect(quotes).to.include(res.body.reward);
+        });
+
+        it('should handle missing userId by treating it as undefined and returning a tarot card reward', async () => {
+            const res = await request(app)
+                .post('/api/end-session')
+                .send({});
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Session ended successfully.');
+            expect(res.body.reward).to.be.an('object');
+            expect(res.body.reward).to.have.property('name');
+            expect(res.body.reward).to.have.property('description');
+        });
     });
-
-    it('should end a second session of the same day with a motivational quote', async () => {
-        const res = await request(app)
-            .post('/api/end-session')
-            .send({ userId: testUserId });
-
-        expect(res.status).to.equal(200);
-        expect(res.body).to.have.property('message', 'Session ended successfully.');
-        expect(res.body.reward).to.be.a('string');  // Motivational quote
-    });
+    describe('Common routes', () => {
+        it('should return the basic app route message', async () => {
+          const res = await request(app).get('/');
+          expect(res.status).to.equal(200);
+          expect(res.text).to.include('basic app route is running');
+        });
+    
+        it('should return the Pomodoro route message', async () => {
+          const res = await request(app).get('/pomodoro');
+          expect(res.status).to.equal(200);
+          expect(res.text).to.include('Flipped Pomodoro is running');
+        });
+      });
 });
-// pomodoro test end 
 });
