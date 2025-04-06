@@ -1,22 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../App.css';
 import './ToDo.css';
 
 function InProgress() {
-    // Make up data (change after database)
-    const [tasks, setTasks] = useState([
-        { id: 1, title: 'Learn Java', status: 'in-progress', deadline: '2025-03-18' },
-        { id: 2, title: 'Build a timer App', status: 'in-progress', deadline: '2025-03-19' },
-        { id: 3, title: 'Develop Project', status: 'in-progress', deadline: '2025-03-19' },
-        { id: 4, title: 'Fix js Bugs', status: 'in-progress', deadline: '2025-03-20' },
-        { id: 5, title: 'remove Unit Tests', status: 'in-progress', deadline: '2025-03-20' },
-        { id: 6, title: 'Update readme', status: 'in-progress', deadline: '2025-03-21' },
-        { id: 7, title: 'make ppt', status: 'in-progress', deadline: '2025-03-21' }
-    ]);
 
+    const [tasks, setTasks] = useState([]);
     const [selectedTask, setSelectedTask] = useState(null);
     const [showTaskPopup, setShowTaskPopup] = useState(false);
     const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Make up data (change after database)
+    useEffect(() => {
+            const fetchTasks = async () => {
+              try {
+                const response = await fetch('http://localhost:5001/api/tasks/in-progress');
+                const data = await response.json();
+                setTasks(data);
+              } catch (error) {
+                console.error('Error fetching tasks:', error);
+              } finally {
+                setIsLoading(false); // Loading complete
+              }
+            };
+            fetchTasks();
+        }, []);
+
 
     // Filter tasks and sort them by deadline
     const filteredTasks = tasks
@@ -27,10 +36,12 @@ function InProgress() {
     const currentTask = filteredTasks[currentTaskIndex] || null;
 
     const navigateToSidebar = () => {
+        window.location.href = '/Sidebar'; 
         console.log("Navigate to sidebar, wait for change");
     };
 
     const navigateToAddTask = () => {
+        window.location.href = '/addevent';
         console.log("Navigate to add task, wait for change");
     };
 
@@ -81,7 +92,12 @@ function InProgress() {
             </div>
 
             <div className="tasks-list">
-                {filteredTasks.map((task, index) => (
+                {isLoading ? (
+                    <div className="loading-message">Loading tasks...</div>
+                ) : filteredTasks.length === 0 ? (
+                    <div className="empty-message">No tasks found</div>
+                ) : (
+                    filteredTasks.map((task, index) => (
                     <div
                         key={task.id}
                         className={`task-item ${index === currentTaskIndex ? 'highlighted' : ''}`}
@@ -92,7 +108,8 @@ function InProgress() {
                     >
                         <div className="task-title">{task.title}</div>
                     </div>
-                ))}
+                ))
+            )}
             </div>
 
             {/* Current Task Overview with integrated button */}
