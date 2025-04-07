@@ -4,9 +4,6 @@
     "express": "^5.1.0",
     "react-calendar": "^5.1.0",
     "react-router-dom": "^7.3.0"
-<<<<<<< HEAD
-  }
-=======
   },
   "name": "4-final-flipped2",
   "version": "1.0.0",
@@ -18,5 +15,4 @@
   "keywords": [],
   "author": "",
   "license": "ISC"
->>>>>>> ae71520bd366e6fb05659c6c594548b18bfce411
 }
