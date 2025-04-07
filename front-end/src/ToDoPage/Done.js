@@ -9,6 +9,7 @@ function Done() {
     const [selectedTask, setSelectedTask] = useState(null);
     const [showTaskPopup, setShowTaskPopup] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
 
     // Make up data (change after database)
     useEffect(() => {
@@ -90,7 +91,7 @@ function Done() {
     };
 
     const navigateToAddTask = () => {
-        window.location.href = '/addevent';
+        window.location.href = '/addtask';
         console.log("Navigate to add task, wait for change");
     };
 
@@ -190,7 +191,7 @@ function Done() {
                             <button
                                 className="edit-button"
                                 onClick={() => {
-                                    window.location.href = '/addEventwfc'; // Navigate to addEventwfc.js
+                                    navigate('/addtask', { state: { taskData: selectedTask, isEditing: true } });
                                 }}
                             >
                                 Edit

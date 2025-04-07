@@ -17,16 +17,19 @@ const AddEventPopup = ({ onSave, onDelete, onClose, eventData, isEditing = false
   }, [eventData]);
 
   const handleSave = () => {
-    const eventData = { title, date, time, duration };
-    console.log('Saving event:', eventData);
-    if (onSave) onSave(eventData);
-    // Navigate to the SimpleCalendar
-    navigate('/calendar');
-  };
+    if (!title || !date || !time) {
+      alert("Please fill in all fields.");
+      return;
+    }
 
-  // Cancel button navigates back to SimpleCalendar
-  const handleCancel = () => {
-    navigate('/calendar');
+    const newEvent = { title, date, time };
+    if (isEditing) {
+      newEvent.index = eventData.index; // preserve index
+      onSave(newEvent);
+    } else {
+      onSave(newEvent);
+      navigate('/calendar'); // Redirect after adding
+    }
   };
 
   return (

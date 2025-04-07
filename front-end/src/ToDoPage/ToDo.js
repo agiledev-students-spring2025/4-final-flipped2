@@ -9,6 +9,7 @@ function ToDo() {
     const [selectedTask, setSelectedTask] = useState(null);
     const [showTaskPopup, setShowTaskPopup] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
 
     // Make up data (connecting to backend)
     useEffect(() => {
@@ -101,12 +102,8 @@ function ToDo() {
     };
 
     const navigateToAddTask = () => {
-<<<<<<< HEAD
-        navigate('/addtask');
-=======
-        window.location.href = '/addevent';
+        window.location.href = '/addtask';
         console.log("Navigate to add task, wait for change");
->>>>>>> master
     };
 
     // Update task status
@@ -205,7 +202,7 @@ function ToDo() {
                             <button
                                 className="edit-button"
                                 onClick={() => {
-                                    window.location.href = '/addEventwfc'; // Navigate to addEventwfc.js
+                                    navigate('/addtask', { state: { taskData: selectedTask, isEditing: true } });
                                 }}
                             >
                                 Edit
