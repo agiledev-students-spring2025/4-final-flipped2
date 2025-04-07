@@ -1,23 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../App.css';
 import './ToDo.css';
 import { useNavigate } from 'react-router-dom';
 
 function ToDo() {
-    const navigate = useNavigate();
-    // Make up data (change after database)
-    const [tasks, setTasks] = useState([
-        { id: 1, title: 'Learn React', status: 'todo', deadline: '2025-03-18' },
-        { id: 2, title: 'Build a ToDo App', status: 'todo', deadline: '2025-03-19' },
-        { id: 3, title: 'Develop Project', status: 'todo', deadline: '2025-03-19' },
-        { id: 4, title: 'Fix UI Bugs', status: 'todo', deadline: '2025-03-20' },
-        { id: 5, title: 'Add Unit Tests', status: 'todo', deadline: '2025-03-20' },
-        { id: 6, title: 'Update Documentation', status: 'todo', deadline: '2025-03-21' },
-        { id: 7, title: 'Present to Team', status: 'todo', deadline: '2025-03-21' }
-    ]);
 
+    const [tasks, setTasks] = useState([]);
     const [selectedTask, setSelectedTask] = useState(null);
     const [showTaskPopup, setShowTaskPopup] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Make up data (connecting to backend)
+    useEffect(() => {
+        const fetchTasks = async () => {
+          try {
+            const response = await fetch('http://localhost:5001/api/tasks/todo');
+            const data = await response.json();
+            setTasks(data);
+          } catch (error) {
+            console.error('Error fetching tasks:', error);
+          } finally {
+            setIsLoading(false); // Loading complete
+          }
+        };
+        fetchTasks();
+    }, []);
+
+    useEffect(() => {
+        console.log('Tasks state updated:', tasks); // Check if state updates
+      }, [tasks]);
+
+
+    
 
     // Sort tasks by deadline
     const filteredTasks = tasks
@@ -82,12 +96,17 @@ function ToDo() {
     });
 
     const navigateToSidebar = () => {
-        // window.location.href = '/sideBar'; 
+        window.location.href = '/Sidebar'; 
         console.log("Navigate to sidebar, wait for change");
     };
 
     const navigateToAddTask = () => {
+<<<<<<< HEAD
         navigate('/addtask');
+=======
+        window.location.href = '/addevent';
+        console.log("Navigate to add task, wait for change");
+>>>>>>> master
     };
 
     // Update task status
@@ -123,7 +142,12 @@ function ToDo() {
             </div>
 
             <div className="tasks-list">
-                {filteredTasks.map(task => (
+                {isLoading ? (
+                    <div className="loading-message">Loading tasks...</div>
+                ) : filteredTasks.length === 0 ? (
+                    <div className="empty-message">No tasks found</div>
+                ) : (
+                    filteredTasks.map(task => (
                     <div
                         key={task.id}
                         className="task-item"
@@ -134,7 +158,8 @@ function ToDo() {
                     >
                         <div className="task-title">{task.title}</div>
                     </div>
-                ))}
+                ))
+            )}
             </div>
 
             <div className="calendar-section">
