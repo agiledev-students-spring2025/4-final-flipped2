@@ -19,19 +19,45 @@ function App() {
   const [editingEvent, setEditingEvent] = useState(null);
 
   const handleAddEvent = (eventData) => {
-    setEvents((prev) => [...prev, eventData]);
+    fetch("http://localhost:5001/api/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(eventData)
+    })
+      .then(response => response.json())
+      .then(data => {
+        // Update local state with the event returned from the backend
+        setEvents((prev) => [...prev, data]);
+      })
+      .catch(error => console.error("Error adding event:", error));
   };
 
   const handleEditEvent = (updatedEvent) => {
-    setEvents((prev) =>
-      prev.map((event, idx) => (idx === updatedEvent.index ? updatedEvent : event))
-    );
-    setEditingEvent(null);
+    fetch(`http://localhost:5001/api/events/${updatedEvent.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedEvent)
+    })
+      .then(response => response.json())
+      .then(data => {
+        setEvents((prev) =>
+          prev.map(event => (event.id === data.id ? data : event))
+        );
+        setEditingEvent(null);
+      })
+      .catch(error => console.error("Error updating event:", error));
   };
 
   const handleDeleteEvent = (index) => {
-    setEvents((prev) => prev.filter((_, i) => i !== index));
-    setEditingEvent(null);
+    fetch(`http://localhost:5001/api/events/${eventId}`, {
+      method: "DELETE"
+    })
+      .then(response => response.json())
+      .then(() => {
+        setEvents((prev) => prev.filter(event => event.id !== eventId));
+        setEditingEvent(null);
+      })
+      .catch(error => console.error("Error deleting event:", error));
   };
 
   return (
