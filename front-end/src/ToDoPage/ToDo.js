@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../App.css';
 import './ToDo.css';
+import { useNavigate } from 'react-router-dom';
 
 function ToDo() {
 
@@ -8,6 +9,7 @@ function ToDo() {
     const [selectedTask, setSelectedTask] = useState(null);
     const [showTaskPopup, setShowTaskPopup] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
 
     // Make up data (connecting to backend)
     useEffect(() => {
@@ -100,7 +102,7 @@ function ToDo() {
     };
 
     const navigateToAddTask = () => {
-        window.location.href = '/addevent';
+        window.location.href = '/addtask';
         console.log("Navigate to add task, wait for change");
     };
 
@@ -121,6 +123,18 @@ function ToDo() {
             setSelectedTask(null);
             setShowTaskPopup(false);
         }
+        fetch(`http://localhost:5001/api/tasks/${taskId}`, {
+            method: 'DELETE'
+          })
+            .then(response => response.json())
+            .then(deletedTask => {
+              setTasks(tasks.filter(task => task.id !== taskId));
+              if (selectedTask && selectedTask.id === taskId) {
+                  setSelectedTask(null);
+                  setShowTaskPopup(false);
+              }
+            })
+            .catch(err => console.error("Error deleting task:", err));
     };
 
     return (
@@ -200,7 +214,7 @@ function ToDo() {
                             <button
                                 className="edit-button"
                                 onClick={() => {
-                                    window.location.href = '/addEventwfc'; // Navigate to addEventwfc.js
+                                    navigate('/addtask', { state: { taskData: selectedTask, isEditing: true } });
                                 }}
                             >
                                 Edit
