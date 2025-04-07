@@ -78,6 +78,18 @@ function InProgress() {
             setSelectedTask(null);
             setShowTaskPopup(false);
         }
+        fetch(`http://localhost:5001/api/tasks/${taskId}`, {
+            method: 'DELETE'
+          })
+            .then(response => response.json())
+            .then(deletedTask => {
+              setTasks(tasks.filter(task => task.id !== taskId));
+              if (selectedTask && selectedTask.id === taskId) {
+                  setSelectedTask(null);
+                  setShowTaskPopup(false);
+              }
+            })
+            .catch(err => console.error("Error deleting task:", err));
     };
 
     return (
