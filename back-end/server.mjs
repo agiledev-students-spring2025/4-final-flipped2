@@ -45,6 +45,32 @@ const generateId = () => {
   return tasks.length > 0 ? Math.max(...tasks.map(task => task.id)) + 1 : 1;
 };
 
+let mockUsers = []
+
+app.get('/api/data', (req, res) => {
+  res.json({ message: 'My check, does this work?', status: 'success' });
+});
+
+app.post('/api/signup', (req, res) => {
+  const { email, password } = req.body;
+  const userExists = mockUsers.find(user => user.email === email);
+  if (userExists) {
+    return res.status(400).json({ status: 'fail', message: 'User already exists' });
+  }
+  mockUsers.push({ email, password });
+  res.json({ status: 'success', message: 'User registered' });
+});
+
+app.post('/api/login', (req, res) => {
+  const { email, password } = req.body;
+  const user = mockUsers.find(user => user.email === email && user.password === password);
+  if (user) {
+    res.json({ status: 'success', message: 'Login successful' });
+  } else {
+    res.status(401).json({ status: 'fail', message: 'Invalid credentials' });
+  }
+});
+
 // Get all tasks
 app.get('/api/tasks', (req, res) => {
   res.json(tasks);

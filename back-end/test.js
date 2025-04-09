@@ -2,6 +2,40 @@ import { expect } from 'chai';
 import request from 'supertest';
 import { app } from './server.mjs';
 
+
+//Login and SignUp
+describe('Loging & Signup API', () => {
+    describe('log Routes', () => {
+      it('POST /api/signup should register a new user', async () => {
+        const res = await request(app)
+          .post('/api/signup')
+          .send({ email: 'test@example.com', password: '123456' });
+  
+        expect(res.status).to.equal(200);
+        expect(res.body.status).to.equal('success');
+      });
+  
+      it('POST /api/login should allow valid login', async () => {
+        const res = await request(app)
+          .post('/api/login')
+          .send({ email: 'test@example.com', password: '123456' });
+  
+        expect(res.status).to.equal(200);
+        expect(res.body.status).to.equal('success');
+      });
+  
+      it('POST /api/login should reject invalid login', async () => {
+        const res = await request(app)
+          .post('/api/login')
+          .send({ email: 'wrong@example.com', password: 'wrong' });
+  
+        expect(res.status).to.equal(401);
+        expect(res.body.status).to.equal('fail');
+      });
+    });      
+});
+
+
 // Todo section test
 describe('ToDo API', () => {
     describe('GET /api/tasks', () => {
