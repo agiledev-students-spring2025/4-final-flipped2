@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './PomodoroTimer.css'; // for Pomodorotimer.js
 import { Link } from "react-router-dom"; // for navbar
+import useGyroscope from './useGyroscope'; // for gyroscope function
 
 const PomodoroTimer = () => {
 
@@ -78,7 +79,12 @@ const PomodoroTimer = () => {
       .catch(err => console.error('Error ending session:', err));
   };
 
-  // Flip phone function (would be triggered by gyroscope in real app)
+
+  useGyroscope(() => {
+    // If timer is running, pause it; otherwise, start it.
+    flipPhone();
+  });
+  // Pause timer button
   const flipPhone = () => {
     if (!isRunning) {
       startTimer();
@@ -86,6 +92,7 @@ const PomodoroTimer = () => {
       pauseTimer();
     }
   };
+
 
   // Timer effect
   useEffect(() => {
@@ -175,13 +182,20 @@ const PomodoroTimer = () => {
         <div className="flip-instruction">
           <p>Flip your phone face down to start focusing</p>
           <button className="flip-button" onClick={flipPhone}>
-            Simulate Flip
+            Pause Timer(Turn phone around to)
           </button>
         </div>
         {/* Display Reward Popup */}
         {reward && (
           <div className="reward-popup">
             <h3>Congratulations!</h3>
+            {reward.imageUrl && (
+              <img 
+                src={reward.imageUrl} 
+                alt={reward.name} 
+                style={{ maxWidth: '150px', marginBottom: '1em' }}
+              />
+            )}
             <p>{reward.name ? `${reward.name}: ${reward.description}` : reward}</p>
             <button onClick={() => setReward(null)}>Close</button>
           </div>
