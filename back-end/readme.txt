@@ -10,3 +10,8 @@
 
 ## Testing
 Run tests with: `npm test`
+
+
+## mongodb 
+npm install mongodb
+npm install mongoose dotenv
