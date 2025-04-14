@@ -3,6 +3,10 @@ import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
+import connectDB from './db.js';  
+
+connectDB();
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -297,9 +301,9 @@ const userSessions = {};
 
 // Sample tarot cards and motivational quotes.
 const tarotCards = [
-  { name: 'The Fool', description: 'A new beginning, having faith in the future.' },
-  { name: 'The Magician', description: 'Skill, logic, and intellect.' },
-  { name: 'The High Priestess', description: 'Intuition, mystery, and subconscious mind.' },
+  { name: 'The Fool', description: 'A new beginning, having faith in the future.' , imageUrl: "/torot-card-folder/The-fool-card.jpg"},
+  { name: 'The Magician', description: 'Skill, logic, and intellect.', imageUrl: "/torot-card-folder/The-magician-card.jpg" },
+  { name: 'The High Priestess', description: 'Intuition, mystery, and subconscious mind.', imageUrl: "/torot-card-folder/The-high-priesttess-card.jpg"},
 ];
 
 const motivationalQuotes = [
