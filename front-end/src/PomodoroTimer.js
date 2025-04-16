@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './PomodoroTimer.css'; // for Pomodorotimer.js
-import { Link } from "react-router-dom"; // for navbar
 import useGyroscope from './useGyroscope'; // for gyroscope function
+import Sidebar from './Sidebar';
+
 
 const PomodoroTimer = () => {
 
@@ -16,6 +17,9 @@ const PomodoroTimer = () => {
   const [showControls, setShowControls] = useState(true);
   const [reward, setReward] = useState(null); // for backend 
   const timerRef = useRef(null);
+
+  const [showSidebar, setShowSidebar] = useState(false);
+  const toggleSidebar = () => setShowSidebar(!showSidebar);
 
   // Format time to MM:SS
   const formatTime = (seconds) => {
@@ -131,7 +135,17 @@ const PomodoroTimer = () => {
 
   return (
     <div className="pomodoro-container">
-      <Link to="/sidebar" className="nav-bar">☰</Link> 
+      <button className="toggle-sidebar-btn" onClick={toggleSidebar}>
+        ☰
+      </button>
+      {showSidebar && (
+        <div className="sidebar-overlay">
+          <Sidebar />
+          <button className="close-sidebar-btn" onClick={toggleSidebar}>
+            ✕
+          </button>
+        </div>
+      )}
       <div className="timer-wrapper">
         <div className="timer-circle-container">
           <svg className="timer-circle" viewBox="0 0 280 280">
