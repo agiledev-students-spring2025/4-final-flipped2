@@ -3,7 +3,9 @@ import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
-import connectDB from './db.js';  
+import connectDB from './db.js';
+import Event from './events.js';
+
 
 connectDB();
 
@@ -220,78 +222,71 @@ app.get('/api/calendar', (req, res) => {
 
 // Calendar event section (added for Huy's calendar app)
 
-let events = [
-  { id: 1, title: "Doctor Appointment", date: "2025-04-08", time: "14:00" },
-  { id: 2, title: "Meeting with Team", date: "2025-04-09", time: "10:00" }
-];
-
-const generateEventId = () => {
-  return events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1;
-};
-
-// Get all events
-app.get('/api/events', (req, res) => {
-  res.json(events);
+// get all events
+app.get('/api/events', async (req, res) => {
+  try {
+    const events = await Event.find();
+    res.json(events);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch events' });
+  }
 });
 
-// Get events by date
-app.get('/api/events/date/:date', (req, res) => {
-  const { date } = req.params;
-  const result = events.filter(event => event.date === date);
-  res.json(result);
+// get events by date
+app.get('/api/events/date/:date', async (req, res) => {
+  try {
+    const events = await Event.find({ date: req.params.date });
+    res.json(events);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch events by date' });
+  }
 });
 
-// Add new event
-app.post('/api/events', (req, res) => {
+// add new event
+app.post('/api/events', async (req, res) => {
   const { title, date, time } = req.body;
-  
+
+  console.log("incoming request to create event:", req.body); //to debug DB integration 
+
   if (!title || !date || !time) {
-    return res.status(400).json({ error: 'Title, date, and time are required.' });
+    console.warn("missing values in event input:", req.body);
+    return res.status(400).json({ error: 'title, date, and time all needed.' });
   }
 
-  const newEvent = {
-    id: generateEventId(),
-    title,
-    date,
-    time
-  };
-
-  events.push(newEvent);
-  res.status(201).json(newEvent);
-});
-
-// Update event
-app.put('/api/events/:id', (req, res) => {
-  const eventId = parseInt(req.params.id);
-  const { title, date, time } = req.body;
-  const index = events.findIndex(e => e.id === eventId);
-
-  if (index === -1) {
-    return res.status(404).json({ error: 'Event not found' });
+  try {
+    const newEvent = new Event({ title, date, time });
+    const saved = await newEvent.save();
+    console.log("Event saved to MongoDB:", saved); // debug to confirm event was saved to databsed
+    res.status(201).json(saved);
+  } catch (err) {
+    console.error("error saving event:", err); //error with event
+    res.status(500).json({ error: 'Failed to save event' });
   }
-
-  events[index] = {
-    ...events[index],
-    title: title || events[index].title,
-    date: date || events[index].date,
-    time: time || events[index].time
-  };
-
-  res.json(events[index]);
 });
 
-// Delete event
-app.delete('/api/events/:id', (req, res) => {
-  const eventId = parseInt(req.params.id);
-  const index = events.findIndex(e => e.id === eventId);
 
-  if (index === -1) {
-    return res.status(404).json({ error: 'Event not found' });
+// Update an event
+app.put('/api/events/:id', async (req, res) => {
+  try {
+    const updated = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ error: 'Event not found' });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update event' });
   }
-
-  const deleted = events.splice(index, 1);
-  res.json(deleted[0]);
 });
+
+// Delete an event
+app.delete('/api/events/:id', async (req, res) => {
+  try {
+    const deleted = await Event.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Event not found' });
+    res.json(deleted);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete event' });
+  }
+});
+
 
 // Pomodoro section implementation
 
