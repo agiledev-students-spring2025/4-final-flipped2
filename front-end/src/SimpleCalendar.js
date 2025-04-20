@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Calendar from "react-calendar";
+import Sidebar from "./Sidebar";
 import "react-calendar/dist/Calendar.css";
-import Sidebar from "./Sidebar"; 
 
-const SimpleCalendar = ({ onEditEvent }) => {
+const SimpleCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [events, setEvents] = useState([]);
+  const [editingEvent, setEditingEvent] = useState(null);
   const [showSidebar, setShowSidebar] = useState(false);
   const location = useLocation();
 
@@ -21,43 +22,62 @@ const SimpleCalendar = ({ onEditEvent }) => {
 
   const formattedSelectedDate = formatDate(selectedDate);
 
-  useEffect(() => {
+  const fetchEvents = () => {
     fetch("http://localhost:5001/api/events")
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setEvents(data);
-        } else {
-          console.error("Expected array but got:", data);
-          setEvents([]);
-        }
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setEvents(data);
+        else setEvents([]);
       })
-      .catch(err => {
-        console.error("Fetch failed:", err);
-        setEvents([]);
-      });
+      .catch(() => setEvents([]));
+  };
+
+  useEffect(() => {
+    fetchEvents();
   }, [location]);
 
   const eventsForSelectedDate = events.filter(
     (event) => event.date === formattedSelectedDate
   );
 
+  const handleUpdate = () => {
+    fetch(`http://localhost:5001/api/events/${editingEvent._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editingEvent),
+    })
+      .then(() => {
+        setEditingEvent(null);
+        fetchEvents();
+      })
+      .catch((err) => console.error("Update failed:", err));
+  };
+
+  const handleDelete = () => {
+    fetch(`http://localhost:5001/api/events/${editingEvent._id}`, {
+      method: "DELETE",
+    })
+      .then(() => {
+        setEditingEvent(null);
+        fetchEvents();
+      })
+      .catch((err) => console.error("Delete failed:", err));
+  };
+
   return (
     <div className="calendar-container">
-      <button className="toggle-sidebar-btn" onClick={toggleSidebar}>
-        ☰
-      </button>
+      {/* Sidebar toggle button */}
+      <button className="toggle-sidebar-btn" onClick={toggleSidebar}>☰</button>
 
       {showSidebar && (
         <div className="sidebar-overlay">
           <Sidebar />
-          <button className="close-sidebar-btn" onClick={toggleSidebar}>
-            ✕
-          </button>
+          <button className="close-sidebar-btn" onClick={toggleSidebar}>✕</button>
         </div>
       )}
 
       <h1 className="welcome-text">Welcome To Flipped!</h1>
+
       <div className="calendar-wrapper">
         <Calendar
           onChange={setSelectedDate}
@@ -70,6 +90,7 @@ const SimpleCalendar = ({ onEditEvent }) => {
           }
         />
       </div>
+
       <div className="activities-wrapper">
         <h2>📅 Activities for {selectedDate.toDateString()}</h2>
         {eventsForSelectedDate.length > 0 ? (
@@ -78,7 +99,7 @@ const SimpleCalendar = ({ onEditEvent }) => {
               <div
                 key={event._id}
                 className="event-card"
-                onClick={() => onEditEvent(event)}
+                onClick={() => setEditingEvent({ ...event })}
               >
                 <div className="event-title">{event.title}</div>
                 <div className="event-time">🕒 {event.time}</div>
@@ -89,9 +110,60 @@ const SimpleCalendar = ({ onEditEvent }) => {
           <p>No activities added yet.</p>
         )}
       </div>
+
       <Link to="/addevent">
         <button className="floating-button">+</button>
       </Link>
+
+      {editingEvent && (
+        <div className="popup-overlay">
+          <h2 className="popup-title">Edit Event</h2>
+          <div className="popup-content">
+            <div className="form-group">
+              <label>Event:</label>
+              <input
+                type="text"
+                value={editingEvent.title}
+                onChange={(e) =>
+                  setEditingEvent({ ...editingEvent, title: e.target.value })
+                }
+              />
+              <br /><br />
+              <label>Date:</label>
+              <input
+                type="date"
+                value={editingEvent.date}
+                onChange={(e) =>
+                  setEditingEvent({ ...editingEvent, date: e.target.value })
+                }
+              />
+              <br /><br />
+              <label>Time:</label>
+              <input
+                type="time"
+                value={editingEvent.time}
+                onChange={(e) =>
+                  setEditingEvent({ ...editingEvent, time: e.target.value })
+                }
+              />
+            </div>
+            <div className="button-container">
+              <button
+                className="cancel-button"
+                onClick={() => setEditingEvent(null)}
+              >
+                Cancel
+              </button>
+              <button className="cancel-button" onClick={handleDelete}>
+                Delete
+              </button>
+              <button className="save-button" onClick={handleUpdate}>
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
