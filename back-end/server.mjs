@@ -5,6 +5,10 @@ import { dirname } from 'path';
 import path from 'path';
 import connectDB from './db.js';
 import Event from './events.js';
+import User from './users.js'; 
+import bcrypt from 'bcrypt';
+
+
 
 
 connectDB();
@@ -57,23 +61,39 @@ app.get('/api/data', (req, res) => {
   res.json({ message: 'My check, does this work?', status: 'success' });
 });
 
-app.post('/api/signup', (req, res) => {
+
+app.post('/api/signup', async (req, res) => {
   const { email, password } = req.body;
-  const userExists = mockUsers.find(user => user.email === email);
-  if (userExists) {
-    return res.status(400).json({ status: 'fail', message: 'User already exists' });
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ status: 'fail', message: 'User already exists' });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10); 
+    const newUser = new User({ email, password: hashedPassword });
+    await newUser.save();
+    res.json({ status: 'success', message: 'User registered' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ status: 'fail', message: 'Server error' });
   }
-  mockUsers.push({ email, password });
-  res.json({ status: 'success', message: 'User registered' });
 });
 
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
-  const user = mockUsers.find(user => user.email === email && user.password === password);
-  if (user) {
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ status: 'fail', message: 'Invalid credentials' });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ status: 'fail', message: 'Invalid credentials' });
+    }
     res.json({ status: 'success', message: 'Login successful' });
-  } else {
-    res.status(401).json({ status: 'fail', message: 'Invalid credentials' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ status: 'fail', message: 'Server error' });
   }
 });
 
