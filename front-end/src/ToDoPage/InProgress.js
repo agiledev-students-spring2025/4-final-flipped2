@@ -11,19 +11,31 @@ function InProgress() {
     const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      };
 
-    // Make up data (change after database)
+    // Connecting to database
     useEffect(() => {
             const fetchTasks = async () => {
-              try {
-                const response = await fetch('http://localhost:5001/api/tasks/in-progress');
-                const data = await response.json();
-                setTasks(data);
-              } catch (error) {
-                console.error('Error fetching tasks:', error);
-              } finally {
-                setIsLoading(false); // Loading complete
-              }
+                try {
+                    const response = await fetch('http://localhost:5001/api/tasks/in-progress');
+                    if (!response.ok) throw new Error('Network response was not ok');
+    
+                    const data = await response.json();
+                    // Ensure we have an array, even if empty
+                    setTasks(Array.isArray(data) ? data : []);
+                } catch (error) {
+                    console.error('Error fetching tasks:', error);
+                    setTasks([]);
+                } finally {
+                    setIsLoading(false);
+                }
             };
             fetchTasks();
         }, []);
@@ -152,7 +164,7 @@ function InProgress() {
                     <>
                         <div className="current-task-details">
                             <h2>{currentTask.title}</h2>
-                            <p>Deadline: {currentTask.deadline}</p>
+                            <p>Deadline: {formatDate(currentTask.deadline)}</p>
                             <p>Status: {currentTask.status}</p>
                         </div>
 
@@ -194,7 +206,7 @@ function InProgress() {
                         <div className="tasks-preview">
                             <div className="task-item selected">
                                 <div className="task-title">{selectedTask.title}</div>
-                                {selectedTask.deadline && <div className="task-deadline">Deadline: {selectedTask.deadline}</div>}
+                                {selectedTask.deadline && <div className="task-deadline">Deadline: {formatDate(selectedTask.deadline)}</div>}
                             </div>
                         </div>
 
@@ -215,7 +227,7 @@ function InProgress() {
                         <div className="task-details">
                             <div className="detail-item">Information of task:</div>
                             <div className="detail-item">Name: {selectedTask.title}</div>
-                            <div className="detail-item">Deadline: {selectedTask.deadline}</div>
+                            <div className="detail-item">Deadline: {formatDate(selectedTask.deadline)}</div>
                             <div className="detail-item">Category: {selectedTask.status}</div>
                         </div>
 
