@@ -10,22 +10,39 @@ function Done() {
     const [showTaskPopup, setShowTaskPopup] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
 
     // Make up data (change after database)
     useEffect(() => {
-                const fetchTasks = async () => {
-                  try {
-                    const response = await fetch('http://localhost:5001/api/tasks/done');
-                    const data = await response.json();
-                    setTasks(data);
-                  } catch (error) {
-                    console.error('Error fetching tasks:', error);
-                  } finally {
-                    setIsLoading(false); // Loading complete
-                  }
-                };
-                fetchTasks();
-            }, []);
+        const fetchTasks = async () => {
+            try {
+                const response = await fetch('http://localhost:5001/api/tasks/done');
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const data = await response.json();
+                // Ensure we have an array, even if empty
+                setTasks(Array.isArray(data) ? data : []);
+
+                // Fetch calendar data
+                const calendarResponse = await fetch('http://localhost:5001/api/calendar');
+                if (!calendarResponse.ok) throw new Error('Calendar fetch failed');
+                const calendarData = await calendarResponse.json();
+            } catch (error) {
+                console.error('Error fetching tasks:', error);
+                setTasks([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchTasks();
+    }, []);
 
 
     // Filter tasks and sort them by deadline
@@ -34,40 +51,31 @@ function Done() {
         .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
     // Generate dates from calendar for the current month(+- a week)
+    // Generate dates from calendar for the current month(- 7 days, +14 days)
     const generateCalendarDates = () => {
         const now = new Date();
-        const year = now.getFullYear();
-        const month = now.getMonth();
-
-        // Get the first day of the month and the last day of the month
-        const firstDayOfMonth = new Date(year, month, 1);
-        const lastDayOfMonth = new Date(year, month + 1, 0);
-
-        // Get the day of the week for the first day of the month
-        const startDay = firstDayOfMonth.getDay();
-
-        // Get the number of days in the month
-        const numDaysInMonth = lastDayOfMonth.getDate();
-
-        // Generate the days of the month
         const days = [];
-        for (let i = 1; i <= numDaysInMonth; i++) {
-            days.push(new Date(year, month, i));
+
+        // Add 7 days before today
+        for (let i = 7; i > 0; i--) {
+            const date = new Date(now);
+            date.setDate(date.getDate() - i);
+            days.push(date);
         }
 
-        // Add days from the previous month to fill the first week
-        for (let i = 0; i < startDay; i++) {
-            days.unshift(new Date(year, month, -i));
-        }
+        // Add today
+        days.push(new Date(now));
 
-        // Add days from the next month to fill the last week
-        const endDay = lastDayOfMonth.getDay();
-        for (let i = 1; i <= 6 - endDay; i++) {
-            days.push(new Date(year, month + 1, i));
+        // Add 14 days after today
+        for (let i = 1; i <= 14; i++) {
+            const date = new Date(now);
+            date.setDate(date.getDate() + i);
+            days.push(date);
         }
 
         return days;
     };
+
 
     // Generate the calendar dates
     const calendarDates = generateCalendarDates();
@@ -75,18 +83,20 @@ function Done() {
     // Group tasks by their deadlines
     const calendarTasks = {};
     calendarDates.forEach(date => {
-        const dateKey = `${date.getMonth() + 1}/${date.getDate()}`; // Format: "3/18"
+        const dateKey = `${date.getMonth() + 1}/${date.getDate()}`;
         calendarTasks[dateKey] = tasks.filter(task => {
-            const [year, month, day] = task.deadline.split('-').map(Number);
-            const taskDate = new Date(year, month - 1, day);
-            const taskKey = `${taskDate.getMonth() + 1}/${taskDate.getDate()}`;
-
-            return taskKey === dateKey;
+            if (!task.deadline) return false;
+            const taskDate = new Date(task.deadline);
+            return (
+                taskDate.getDate() === date.getDate() &&
+                taskDate.getMonth() === date.getMonth() &&
+                taskDate.getFullYear() === date.getFullYear()
+            );
         });
     });
 
     const navigateToSidebar = () => {
-        window.location.href = '/Sidebar'; 
+        window.location.href = '/Sidebar';
         console.log("Navigate to sidebar, wait for change");
     };
 
@@ -114,14 +124,14 @@ function Done() {
         }
         fetch(`http://localhost:5001/api/tasks/${taskId}`, {
             method: 'DELETE'
-          })
+        })
             .then(response => response.json())
             .then(deletedTask => {
-              setTasks(tasks.filter(task => task.id !== taskId));
-              if (selectedTask && selectedTask.id === taskId) {
-                  setSelectedTask(null);
-                  setShowTaskPopup(false);
-              }
+                setTasks(tasks.filter(task => task.id !== taskId));
+                if (selectedTask && selectedTask.id === taskId) {
+                    setSelectedTask(null);
+                    setShowTaskPopup(false);
+                }
             })
             .catch(err => console.error("Error deleting task:", err));
     };
@@ -146,18 +156,18 @@ function Done() {
                     <div className="empty-message">No tasks found</div>
                 ) : (
                     filteredTasks.map(task => (
-                    <div
-                        key={task.id}
-                        className="task-item"
-                        onClick={() => {
-                            setSelectedTask(task);
-                            setShowTaskPopup(true);
-                        }}
-                    >
-                        <div className="task-title">{task.title}</div>
-                    </div>
-                ))
-            )}
+                        <div
+                            key={task.id}
+                            className="task-item"
+                            onClick={() => {
+                                setSelectedTask(task);
+                                setShowTaskPopup(true);
+                            }}
+                        >
+                            <div className="task-title">{task.title}</div>
+                        </div>
+                    ))
+                )}
             </div>
 
             <div className="calendar-section">
@@ -194,7 +204,7 @@ function Done() {
                         <div className="tasks-preview">
                             <div className="task-item selected">
                                 <div className="task-title">{selectedTask.title}</div>
-                                {selectedTask.deadline && <div className="task-deadline">Deadline: {selectedTask.deadline}</div>}
+                                {selectedTask.deadline && <div className="task-deadline">Deadline: {formatDate(selectedTask.deadline)}</div>}
                             </div>
                         </div>
 
@@ -215,7 +225,7 @@ function Done() {
                         <div className="task-details">
                             <div className="detail-item">Information of task:</div>
                             <div className="detail-item">Name: {selectedTask.title}</div>
-                            <div className="detail-item">Deadline: {selectedTask.deadline}</div>
+                            <div className="detail-item">Deadline: {formatDate(selectedTask.deadline)}</div>
                             <div className="detail-item">Category: {selectedTask.status}</div>
                         </div>
 
