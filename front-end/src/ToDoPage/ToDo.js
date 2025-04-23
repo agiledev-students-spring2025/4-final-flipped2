@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../App.css';
 import './ToDo.css';
 import { useNavigate } from 'react-router-dom';
+import Sidebar from '../Sidebar';
 
 function ToDo() {
 
@@ -9,7 +10,11 @@ function ToDo() {
     const [selectedTask, setSelectedTask] = useState(null);
     const [showTaskPopup, setShowTaskPopup] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [showSidebar, setShowSidebar] = useState(false);
     const navigate = useNavigate();
+
+    const toggleSidebar = () => setShowSidebar(!showSidebar);
+
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', {
@@ -100,40 +105,71 @@ function ToDo() {
         });
     });
 
+    /*
     const navigateToSidebar = () => {
         window.location.href = '/Sidebar';
         console.log("Navigate to sidebar, wait for change");
     };
+    */
 
     const navigateToAddTask = () => {
-        window.location.href = '/addtask';
+        navigate('/addtask');
         console.log("Navigate to add task, wait for change");
     };
 
     // Update task status
-    const updateTaskStatus = (taskId, newStatus) => {
-        setTasks(tasks.map(task =>
-            task.id === taskId ? { ...task, status: newStatus } : task
-        ));
-        if (selectedTask && selectedTask.id === taskId) {
+    const updateTaskStatus = async (taskId, newStatus) => {
+        try {
+          console.log("Updating task status for ID:", taskId, "to:", newStatus);
+          
+          // Update the backend
+          const response = await fetch(`http://localhost:5001/api/tasks/${taskId}/status`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus }),
+          });
+      
+          if (!response.ok) {
+            console.error("Server response not OK:", response.status);
+            throw new Error('Failed to update task status');
+          }
+
+          const updatedTask = await response.json();
+          console.log("Task updated successfully:", updatedTask);
+      
+          // Update local state
+          setTasks(prevTasks => prevTasks.map(task =>
+            task._id === taskId ? { ...task, status: newStatus } : task
+          ));
+          
+          if (selectedTask && selectedTask._id === taskId) {
             setSelectedTask({ ...selectedTask, status: newStatus });
+          }
+      
+          return true; // Success
+        } catch (error) {
+          console.error('Error updating task status:', error);
+          return false; // Failure
         }
     };
 
     // Delete a task
     const deleteTask = (taskId) => {
-        setTasks(tasks.filter(task => task.id !== taskId));
-        if (selectedTask && selectedTask.id === taskId) {
-            setSelectedTask(null);
-            setShowTaskPopup(false);
-        }
+        console.log("Deleting task with ID:", taskId);
         fetch(`http://localhost:5001/api/tasks/${taskId}`, {
             method: 'DELETE'
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to delete task');
+                return response.json();
+            })
             .then(deletedTask => {
-                setTasks(tasks.filter(task => task.id !== taskId));
-                if (selectedTask && selectedTask.id === taskId) {
+                console.log("Task deleted successfully:", deletedTask);
+                // Update local state using MongoDB _id
+                setTasks(prevTasks => prevTasks.filter(task => task._id !== taskId));
+                if (selectedTask && selectedTask._id === taskId) {
                     setSelectedTask(null);
                     setShowTaskPopup(false);
                 }
@@ -141,17 +177,27 @@ function ToDo() {
             .catch(err => console.error("Error deleting task:", err));
     };
 
+
     return (
         <div className="task-board">
             <div className="board-header">
-                <button className="sidebar-button" onClick={navigateToSidebar}>☰</button>
+                <button className="sidebar-button" onClick={toggleSidebar}>☰</button>
                 <button className="add-task-button" onClick={navigateToAddTask}>+</button>
             </div>
 
+            {showSidebar && (
+                <div className="sidebar-overlay">
+                    <Sidebar />
+                    <button className="close-sidebar-btn" onClick={toggleSidebar}>
+                        ✕
+                    </button>
+                </div>
+            )}
+
             <div className="status-tabs">
                 <div className="tab active">To do</div>
-                <div className="tab" onClick={() => window.location.href = '/inprogress'}>In progress</div>
-                <div className="tab" onClick={() => window.location.href = '/done'}>Done</div>
+                <div className="tab" onClick={() => navigate('/inprogress')}>In progress</div>
+                <div className="tab" onClick={() => navigate('/done')}>Done</div>
             </div>
 
             <div className="tasks-list">
@@ -162,7 +208,7 @@ function ToDo() {
                 ) : (
                     filteredTasks.map(task => (
                         <div
-                            key={task.id}
+                            key={task._id}
                             className="task-item"
                             onClick={() => {
                                 setSelectedTask(task);
@@ -185,7 +231,7 @@ function ToDo() {
                                 <div className="date-tasks">
                                     {calendarTasks[dateKey] && calendarTasks[dateKey].map(task => (
                                         <div
-                                            key={task.id}
+                                            key={task._id}
                                             className="grid-task"
                                             onClick={() => {
                                                 setSelectedTask(task);
@@ -223,7 +269,7 @@ function ToDo() {
                             >
                                 Edit
                             </button>
-                            <button className="delete-button" onClick={() => deleteTask(selectedTask.id)}>Delete</button>
+                            <button className="delete-button" onClick={() => deleteTask(selectedTask._id)}>Delete</button>
                             <button className="close-button" onClick={() => setShowTaskPopup(false)}>Close</button>
                         </div>
 
@@ -238,17 +284,26 @@ function ToDo() {
                         <div className="status-buttons">
                             <button
                                 className={`work-button ${selectedTask.status === 'in-progress' ? 'active' : ''}`}
-                                onClick={() => {
-                                    window.location.href = '/pomodoro'; // Navigate to timerwfc.js
+                                onClick={async () => {
+                                    const success = await updateTaskStatus(selectedTask._id, 'in-progress');
+                                    if (success) {
+                                      setShowTaskPopup(false);
+                                      // navigate to pomodoro timer
+                                      navigate('/pomodoro');
+                                    }
                                 }}
                             >
                                 Work on
                             </button>
                             <button
                                 className={`complete-button ${selectedTask.status === 'done' ? 'active' : ''}`}
-                                onClick={() => {
-                                    updateTaskStatus(selectedTask.id, 'done'); // Mark task as done
-                                    window.location.href = '/done'; // Navigate to done.js
+                                onClick={async () => {
+                                    const success = await updateTaskStatus(selectedTask._id, 'done');
+                                    if (success) {
+                                      setShowTaskPopup(false);
+                                      // navigate to done page
+                                      // navigate('/done');
+                                    }
                                 }}
                             >
                                 Complete
