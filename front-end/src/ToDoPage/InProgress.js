@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../App.css';
 import './ToDo.css';
 import { useNavigate } from 'react-router-dom';
+import Sidebar from '../Sidebar';
 
 function InProgress() {
 
@@ -10,7 +11,11 @@ function InProgress() {
     const [showTaskPopup, setShowTaskPopup] = useState(false);
     const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+    const [showSidebar, setShowSidebar] = useState(false);
     const navigate = useNavigate();
+
+    const toggleSidebar = () => setShowSidebar(!showSidebar);
+
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', {
@@ -49,13 +54,15 @@ function InProgress() {
     // Current task for the overview section
     const currentTask = filteredTasks[currentTaskIndex] || null;
 
+    /*
     const navigateToSidebar = () => {
         window.location.href = '/Sidebar'; 
         console.log("Navigate to sidebar, wait for change");
     };
+    */
 
     const navigateToAddTask = () => {
-        window.location.href = '/addtask';
+        navigate('/addtask');
         console.log("Navigate to add task, wait for change");
     };
 
@@ -74,47 +81,86 @@ function InProgress() {
     };
 
     // Update task status
-    const updateTaskStatus = (taskId, newStatus) => {
-        setTasks(tasks.map(task =>
-            task.id === taskId ? { ...task, status: newStatus } : task
-        ));
-        if (selectedTask && selectedTask.id === taskId) {
+    const updateTaskStatus = async (taskId, newStatus) => {
+        try {
+          console.log("Updating task status for ID:", taskId, "to:", newStatus);
+          
+          // Update the backend
+          const response = await fetch(`http://localhost:5001/api/tasks/${taskId}/status`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus }),
+          });
+      
+          if (!response.ok) {
+            console.error("Server response not OK:", response.status);
+            throw new Error('Failed to update task status');
+          }
+
+          const updatedTask = await response.json();
+          console.log("Task updated successfully:", updatedTask);
+      
+          // Update local state - using MongoDB _id
+          setTasks(prevTasks => prevTasks.map(task =>
+            task._id === taskId ? { ...task, status: newStatus } : task
+          ));
+          
+          if (selectedTask && selectedTask._id === taskId) {
             setSelectedTask({ ...selectedTask, status: newStatus });
+          }
+      
+          return true; // Success
+        } catch (error) {
+          console.error('Error updating task status:', error);
+          return false; // Failure
         }
     };
 
     // Delete a task
     const deleteTask = (taskId) => {
-        setTasks(tasks.filter(task => task.id !== taskId));
-        if (selectedTask && selectedTask.id === taskId) {
-            setSelectedTask(null);
-            setShowTaskPopup(false);
-        }
+        console.log("Deleting task with ID:", taskId);
         fetch(`http://localhost:5001/api/tasks/${taskId}`, {
             method: 'DELETE'
-          })
-            .then(response => response.json())
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to delete task');
+                return response.json();
+            })
             .then(deletedTask => {
-              setTasks(tasks.filter(task => task.id !== taskId));
-              if (selectedTask && selectedTask.id === taskId) {
-                  setSelectedTask(null);
-                  setShowTaskPopup(false);
-              }
+                console.log("Task deleted successfully:", deletedTask);
+                // Update local state using MongoDB _id
+                setTasks(prevTasks => prevTasks.filter(task => task._id !== taskId));
+                if (selectedTask && selectedTask._id === taskId) {
+                    setSelectedTask(null);
+                    setShowTaskPopup(false);
+                }
             })
             .catch(err => console.error("Error deleting task:", err));
     };
 
+
     return (
         <div className="task-board">
             <div className="board-header">
-                <button className="sidebar-button" onClick={navigateToSidebar}>☰</button>
+                <button className="sidebar-button" onClick={toggleSidebar}>☰</button>
                 <button className="add-task-button" onClick={navigateToAddTask}>+</button>
             </div>
 
+            {showSidebar && (
+                <div className="sidebar-overlay">
+                    <Sidebar />
+                    <button className="close-sidebar-btn" onClick={toggleSidebar}>
+                        ✕
+                    </button>
+                </div>
+            )}
+
             <div className="status-tabs">
-                <div className="tab" onClick={() => window.location.href = '/todo'}>To do</div>
+                <div className="tab" onClick={() => navigate('/todo')}>To do</div>
                 <div className="tab active">In progress</div>
-                <div className="tab" onClick={() => window.location.href = '/done'}>Done</div>
+                <div className="tab" onClick={() => navigate('/done')}>Done</div>
             </div>
 
             <div className="tasks-list">
@@ -125,7 +171,7 @@ function InProgress() {
                 ) : (
                     filteredTasks.map((task, index) => (
                     <div
-                        key={task.id}
+                        key={task._id}
                         className={`task-item ${index === currentTaskIndex ? 'highlighted' : ''}`}
                         onClick={() => {
                             setSelectedTask(task);
@@ -173,7 +219,7 @@ function InProgress() {
                             <button
                                 className="navigate-timer-button"
                                 onClick={() => {
-                                    window.location.href = '/pomodoro'; // Navigate to timerwfc.js
+                                    navigate('/pomodoro'); // Navigate to timerwfc.js
                                 }}
                             >
                                 Start working
@@ -220,7 +266,7 @@ function InProgress() {
                             >
                                 Edit
                             </button>
-                            <button className="delete-button" onClick={() => deleteTask(selectedTask.id)}>Delete</button>
+                            <button className="delete-button" onClick={() => deleteTask(selectedTask._id)}>Delete</button>
                             <button className="close-button" onClick={() => setShowTaskPopup(false)}>Close</button>
                         </div>
 
@@ -236,16 +282,23 @@ function InProgress() {
                             <button
                                 className={`work-button ${selectedTask.status === 'in-progress' ? 'active' : ''}`}
                                 onClick={() => {
-                                    window.location.href = '/pomodoro'; // Navigate to timerwfc.js
+                                    setShowTaskPopup(false);
+                                    navigate('/pomodoro'); // Navigate to timerwfc.js
                                 }}
+                            
                             >
                                 Work on
                             </button>
                             <button
                                 className={`complete-button ${selectedTask.status === 'done' ? 'active' : ''}`}
-                                onClick={() => {
-                                    updateTaskStatus(selectedTask.id, 'done');
-                                    window.location.href = '/done'; // Navigate to done.js
+                                onClick={async () => {
+                                    console.log("Complete button clicked for task ID:", selectedTask._id);
+                                    const success = await updateTaskStatus(selectedTask._id, 'done');
+                                    if (success) {
+                                        setShowTaskPopup(false);
+                                        // navigate('/done'); // Navigate to done.js
+                                    }
+                            
                                 }}
                             >
                                 Complete
