@@ -23,7 +23,8 @@ const SimpleCalendar = () => {
   const formattedSelectedDate = formatDate(selectedDate);
 
   const fetchEvents = () => {
-    fetch("http://localhost:5001/api/events")
+    const userEmail = localStorage.getItem('userEmail');
+    fetch(`http://localhost:5001/api/events?userEmail=${encodeURIComponent(userEmail)}`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setEvents(data);
@@ -41,7 +42,8 @@ const SimpleCalendar = () => {
   );
 
   const handleUpdate = () => {
-    fetch(`http://localhost:5001/api/events/${editingEvent._id}`, {
+    const userEmail = localStorage.getItem('userEmail');
+    fetch(`http://localhost:5001/api/events/date/${editingEvent.date}?userEmail=${encodeURIComponent(userEmail)}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(editingEvent),

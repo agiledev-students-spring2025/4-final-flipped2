@@ -16,7 +16,12 @@ const AddEventPopup = () => {
       return;
     }
 
-    const newEvent = { title, date, time };
+    const newEvent = {
+      title,
+      date,
+      time,
+      userEmail: localStorage.getItem('userEmail')
+    };
 
     fetch("http://localhost:5001/api/events", {
       method: "POST",
