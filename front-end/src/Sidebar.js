@@ -28,6 +28,12 @@ const Sidebar = () => {
           </Link>
         </li>
         <li>
+          <Link to="/allevents">
+          <span className="icon">📋</span>
+          {isOpen && <span className="link-text">View Events/Task</span>}
+          </Link>
+        </li>
+        <li>
           <Link to="/todo">
             <span className="icon">📝</span>
             {isOpen && <span className="link-text">To-Do List</span>}
