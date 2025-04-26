@@ -23,9 +23,10 @@ const AllEvents = () => {
     fetchEvents();
   }, []);
 
+  const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
+
   return (
     <div className="all-events-container">
-      {/* Sidebar toggle button */}
       <button className="toggle-sidebar-btn" onClick={toggleSidebar}>☰</button>
 
       {showSidebar && (
@@ -35,24 +36,28 @@ const AllEvents = () => {
         </div>
       )}
 
-      <h1 className="welcome-text">All Events & Tasks</h1>
+      <h1 className={`welcome-text ${showSidebar ? "with-sidebar" : ""}`}>
+       🗂️ All Events & Tasks
+      </h1>
+
 
       <div className="events-list-wrapper">
-        {events.length > 0 ? (
-          events.map((event) => (
+        {sortedEvents.length > 0 ? (
+          sortedEvents.map((event) => (
             <div key={event._id} className="event-card">
-              <div className="event-title">📌 {event.title}</div>
-              <div className="event-date">📅 {event.date}</div>
-              <div className="event-time">🕒 {event.time}</div>
+              <div className="event-date-time">
+                <span className="event-date">{event.date}</span> | <span className="event-time">{event.time}</span>
+              </div>
+              <div className="event-title">{event.title}</div>
             </div>
           ))
         ) : (
-          <p>No events found.</p>
+          <p className="no-events">No events found.</p>
         )}
       </div>
 
-      <Link to="/calendar">
-        <button className="back-button">Back to Calendar</button>
+      <Link to="/">
+        <button className="back-button">⬅ Back to Calendar</button>
       </Link>
     </div>
   );
