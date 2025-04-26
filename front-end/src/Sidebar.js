@@ -12,7 +12,7 @@ const Sidebar = () => {
     // Clear stored user data (e.g. email)
     localStorage.removeItem("userEmail");
     // Optionally clear other auth tokens
-    navigate("/");
+    navigate("/login");
   };
 
   return (

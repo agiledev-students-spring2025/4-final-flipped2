@@ -43,7 +43,7 @@ const SimpleCalendar = () => {
 
   const handleUpdate = () => {
     const userEmail = localStorage.getItem('userEmail');
-    fetch(`http://localhost:5001/api/events/date/${editingEvent.date}?userEmail=${encodeURIComponent(userEmail)}`, {
+    fetch(`http://localhost:5001/api/events/${editingEvent._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(editingEvent),

@@ -37,7 +37,17 @@ const AddEventPopup = () => {
 
   return (
     <>
-      <button className="toggle-sidebar-btn" onClick={toggleSidebar}>☰</button>
+      {/* Sidebar toggle button only when sidebar is closed */}
+      {!showSidebar && (
+        <button
+          className="toggle-sidebar-btn"
+          style={{ zIndex: 2000, position: 'fixed', top: '1rem', left: '1rem' }}
+          onClick={toggleSidebar}
+        >
+          ☰
+        </button>
+      )}
+
       {showSidebar && (
         <div className="sidebar-overlay">
           <Sidebar />
