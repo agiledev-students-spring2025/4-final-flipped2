@@ -1,11 +1,19 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 
 const Sidebar = () => {
 
   const [isOpen, setIsOpen] = useState(true);
+  const navigate = useNavigate();
 
+  const handleLogout = () => {
+    // Clear stored user data (e.g. email)
+    localStorage.removeItem("userEmail");
+    // Optionally clear other auth tokens
+    navigate("/");
+  };
 
   return (
     <div className={`sidebar ${isOpen ? "open" : "closed"}`}>
@@ -54,6 +62,13 @@ const Sidebar = () => {
             <span className="icon">➕</span>
             {isOpen && <span className="link-text">Add Task</span>}
           </Link>
+        </li>
+        {/* Logout button */}
+        <li>
+          <button className="logout-button" onClick={handleLogout}>
+            <span className="icon">🚪</span>
+            {isOpen && <span className="link-text">Logout</span>}
+          </button>
         </li>
       </ul>
     </div>
