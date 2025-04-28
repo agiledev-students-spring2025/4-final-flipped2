@@ -50,7 +50,7 @@ const AddTaskPopup = () => {
         })
         .catch(err => console.error("Error updating task:", err));
     } else {
-      fetch('${process.env.REACT_APP_API_URL}/api/tasks', {
+      fetch(`${process.env.REACT_APP_API_URL}/api/tasks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newTask)
