@@ -27,11 +27,18 @@ const AddTaskPopup = () => {
     }
   
     const userEmail = localStorage.getItem('userEmail');
-    const newTask = { title, deadline, status, userEmail };
+    const formattedDeadline = new Date(deadline);
+
+    if (isNaN(formattedDeadline.getTime())) {
+      alert("Please enter a valid date in YYYY-MM-DD format.");
+      return;
+    }
+     const newTask = { title, deadline: formattedDeadline, status, userEmail };
   
     if (isEditing) {
       newTask.id = taskData.id;
-      fetch(`http://localhost:5001/api/tasks/${newTask.id}`, {
+      fetch(
+        `http://localhost:5001/api/tasks/${newTask.id}?userEmail=${encodeURIComponent(userEmail)}`,{
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newTask)

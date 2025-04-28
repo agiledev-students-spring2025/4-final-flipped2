@@ -232,7 +232,7 @@ app.delete('/api/tasks/:id', async (req, res) => {
   try {
     const userEmail = req.query.userEmail;
     if (!userEmail) return res.status(400).json({ error: 'userEmail required' });
-    const deletedTask = await Task.findByIdAndDelete(req.params.id, userEmail);
+    const deletedTask = await Task.findOneAndDelete({ _id: req.params.id, userEmail });
     if (!deletedTask) return res.status(404).json({ error: 'Task not found or not yours' });
     res.json(deletedTask);
   } catch (error) {
