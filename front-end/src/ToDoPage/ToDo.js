@@ -127,7 +127,7 @@ function ToDo() {
           
           // Update the backend
           const userEmail = localStorage.getItem('userEmail'); 
-          const response = await fetch(`http://localhost:5001/api/tasks/todo?userEmail=${encodeURIComponent(userEmail)}`, {
+          const response = await fetch(`http://localhost:5001/api/tasks/${taskId}?userEmail=${encodeURIComponent(userEmail)}`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',

@@ -29,7 +29,9 @@ function Done() {
         const fetchTasks = async () => {
             try {
                 const userEmail = localStorage.getItem('userEmail');
-                const response = await fetch('http://localhost:5001/api/tasks/todo?userEmail=${encodeURIComponent(userEmail)}');
+                const response = await fetch(
+                    `http://localhost:5001/api/tasks/done?userEmail=${encodeURIComponent(userEmail)}`
+                );
                 if (!response.ok) throw new Error('Network response was not ok');
 
                 const data = await response.json();
@@ -120,13 +122,14 @@ function Done() {
           
           // Update the backend
           const userEmail = localStorage.getItem('userEmail'); 
-          const response = await fetch(`http://localhost:5001/api/tasks/todo?userEmail=${encodeURIComponent(userEmail)}`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ status: newStatus , userEmail}),
-          });
+          const response = await fetch(
+            `http://localhost:5001/api/tasks/${taskId}/status?userEmail=${encodeURIComponent(userEmail)}`,
+            {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: newStatus })
+            }
+          );
       
           if (!response.ok) {
             console.error("Server response not OK:", response.status);
