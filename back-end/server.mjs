@@ -282,27 +282,23 @@ app.get('/api/calendar', async (req, res) => {
 
 // get all events
 app.get('/api/events', async (req, res) => {
-  try {
-    const events = await Event.find();
-    res.json(events);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch events' });
-  }
+  const userEmail = req.query.userEmail;
+  if (!userEmail) return res.status(400).json({ error: "userEmail required" });
+  const events = await Event.find({ userEmail });
+  res.json(events);
 });
 
 // get events by date
 app.get('/api/events/date/:date', async (req, res) => {
-  try {
-    const events = await Event.find({ date: req.params.date });
-    res.json(events);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch events by date' });
-  }
+  const userEmail = req.query.userEmail;
+  if (!userEmail) return res.status(400).json({ error: "userEmail required" });
+  const events = await Event.find({ date: req.params.date, userEmail });
+  res.json(events);
 });
 
 // add new event
 app.post('/api/events', async (req, res) => {
-  const { title, date, time } = req.body;
+  const { title, date, time, userEmail } = req.body;
 
   console.log("incoming request to create event:", req.body); //to debug DB integration 
 
@@ -312,7 +308,7 @@ app.post('/api/events', async (req, res) => {
   }
 
   try {
-    const newEvent = new Event({ title, date, time });
+    const newEvent = new Event({ title, date, time, userEmail });
     const saved = await newEvent.save();
     console.log("Event saved to MongoDB:", saved); // debug to confirm event was saved to databsed
     res.status(201).json(saved);

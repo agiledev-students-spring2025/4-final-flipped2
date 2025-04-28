@@ -11,6 +11,7 @@ import PomodoroTimer from "./PomodoroTimer";
 import AddTaskPopup from "./AddTaskPopup";
 import AddEventPopup from "./AddEventPopup";
 import Sidebar from "./Sidebar";
+import AllEvents from "./AllEvents"; 
 
 import "./App.css";
 
@@ -55,6 +56,7 @@ function App() {
           <Route path="/inprogress" element={<InProgress />} />
           <Route path="/done" element={<Done />} />
           <Route path="/addtask" element={<AddTaskPopup />} />
+          <Route path="/allevents" element={<AllEvents />} />
           <Route path="/addevent" element={<AddEventPopup onSave={handleAddEvent} />} />
         </Routes>
 

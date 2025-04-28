@@ -27,6 +27,8 @@ const Loginpage = () => {
       const data = await res.json();
   
       if (res.ok) {
+        // store the logged-in email
+        localStorage.setItem("userEmail", email);
         navigate("/calendar");
       } else {
         alert(data.message || 'Login failed');
