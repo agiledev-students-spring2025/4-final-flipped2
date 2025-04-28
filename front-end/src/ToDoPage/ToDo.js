@@ -29,7 +29,7 @@ function ToDo() {
   const fetchTasks = async () => {
     const userEmail = localStorage.getItem('userEmail');
     const res = await fetch(
-        `http://localhost:5001/api/tasks/todo?userEmail=${encodeURIComponent(userEmail)}`
+        `${process.env.REACT_APP_API_URL}/api/tasks/todo?userEmail=${encodeURIComponent(userEmail)}`
     );
     const data = await res.json();
     setTasks(Array.isArray(data) ? data : []);
@@ -137,7 +137,7 @@ function ToDo() {
           
           // Update the backend
           const userEmail = localStorage.getItem('userEmail'); 
-          const response = await fetch(`http://localhost:5001/api/tasks/${taskId}/status?userEmail=${encodeURIComponent(userEmail)}`, {
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${taskId}/status?userEmail=${encodeURIComponent(userEmail)}`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
@@ -182,7 +182,7 @@ function ToDo() {
         try {
             const userEmail = localStorage.getItem('userEmail');
             const res = await fetch(
-            `http://localhost:5001/api/tasks/${taskId}?userEmail=${encodeURIComponent(userEmail)}`,
+            `${process.env.REACT_APP_API_URL}/api/tasks/${taskId}?userEmail=${encodeURIComponent(userEmail)}`,
             { method: 'DELETE' }
             );
             if (!res.ok) throw new Error(`Delete failed ${res.status}`);

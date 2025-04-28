@@ -38,7 +38,7 @@ const AddTaskPopup = () => {
     if (isEditing) {
       newTask.id = taskData.id;
       fetch(
-        `http://localhost:5001/api/tasks/${newTask.id}?userEmail=${encodeURIComponent(userEmail)}`,{
+        `${process.env.REACT_APP_API_URL}/api/tasks/${newTask.id}?userEmail=${encodeURIComponent(userEmail)}`,{
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newTask)
@@ -50,7 +50,7 @@ const AddTaskPopup = () => {
         })
         .catch(err => console.error("Error updating task:", err));
     } else {
-      fetch('http://localhost:5001/api/tasks', {
+      fetch('${process.env.REACT_APP_API_URL}/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newTask)
