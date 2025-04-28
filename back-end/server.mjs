@@ -28,8 +28,8 @@ app.use(cors({
 
 // Middleware to parse JSON bodies (if needed)
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../front-end/public')));
-app.use(express.static(path.join(__dirname, '../front-end/src')));
+app.use(express.static(path.join(__dirname, '../front-end/build')));
+app.use(express.static(path.join(__dirname, '../front-end/build')));
 
 // Todo API start
 
@@ -418,7 +418,7 @@ app.get('/pomodoro', (req, res) => {
 
 // Static Files
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../front-end/public/index.js'));
+  res.sendFile(path.join(__dirname, '../front-end/public/index.html'));
 });
 
 app.listen(PORT, () => {

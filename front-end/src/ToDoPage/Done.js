@@ -39,7 +39,7 @@ function Done() {
                 setTasks(Array.isArray(data) ? data : []);
 
                 // Fetch calendar data
-                const calendarResponse = await fetch('${process.env.REACT_APP_API_URL}/api/calendar');
+                const calendarResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/calendar`);
                 if (!calendarResponse.ok) throw new Error('Calendar fetch failed');
                 const calendarData = await calendarResponse.json();
             } catch (error) {
