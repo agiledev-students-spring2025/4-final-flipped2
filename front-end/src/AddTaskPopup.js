@@ -10,6 +10,7 @@ const AddTaskPopup = () => {
   const [title, setTitle] = useState('');
   const [deadline, setDeadline] = useState('');
   const [status, setStatus] = useState('');
+  
 
   useEffect(() => {
     if (taskData) {
@@ -25,7 +26,8 @@ const AddTaskPopup = () => {
       return;
     }
   
-    const newTask = { title, deadline, status };
+    const userEmail = localStorage.getItem('userEmail');
+    const newTask = { title, deadline, status, userEmail };
   
     if (isEditing) {
       newTask.id = taskData.id;

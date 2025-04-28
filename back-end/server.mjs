@@ -33,7 +33,9 @@ app.use(express.static(path.join(__dirname, '../front-end/src')));
 
 // Todo API start
 
-// Mock database
+
+// Mock data below: 
+/* // Mock database
 let tasks = [
   { id: 1, title: 'Learn React', status: 'todo', deadline: '2025-04-20' },
   { id: 2, title: 'Build a ToDo App', status: 'todo', deadline: '2025-04-21' },
@@ -81,7 +83,9 @@ app.post('/api/migrate-tasks', async (req, res) => {
       details: error.message
     });
   }
-});
+}); */
+// Mock data post above 
+
 
 // Generate new ID
 const generateId = () => {
@@ -133,7 +137,9 @@ app.post('/api/login', async (req, res) => {
 // Get all tasks
 app.get('/api/tasks', async (req, res) => {
   try {
-    const tasks = await Task.find();
+    const userEmail = req.query.userEmail;
+    if (!userEmail) return res.status(400).json({ error: 'userEmail required' });
+    const tasks = await Task.find({ userEmail });
     res.json(tasks);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch tasks' });
@@ -143,8 +149,10 @@ app.get('/api/tasks', async (req, res) => {
 // Get tasks by status
 app.get('/api/tasks/:status', async (req, res) => {
   try {
+    const userEmail = req.query.userEmail;
+    if (!userEmail) return res.status(400).json({ error: 'userEmail required' });
     const status = req.params.status.toLowerCase();
-    const tasks = await Task.find({ status })
+    const tasks = await Task.find({ status, userEmail  })
       .sort({ deadline: 1 });
     res.json(tasks);
   } catch (error) {
@@ -155,7 +163,9 @@ app.get('/api/tasks/:status', async (req, res) => {
 // Get a single task by ID
 app.get('/api/task/:id', async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
+    const userEmail = req.query.userEmail;
+    if (!userEmail) return res.status(400).json({ error: 'userEmail required' });
+    const task = await Task.findById(req.params.id, userEmail);
     if (!task) return res.status(404).json({ error: 'Task not found' });
     res.json(task);
   } catch (error) {
@@ -166,13 +176,14 @@ app.get('/api/task/:id', async (req, res) => {
 // Create a new task
 app.post('/api/tasks', async (req, res) => {
   try {
-    const { title, status, deadline } = req.body;
+    const { title, status, deadline,  userEmail } = req.body;
 
-    if (!title || !status || !deadline) {
-      return res.status(400).json({ error: 'Title, status, and deadline are required' });
+    if (!title || !status || !deadline||!userEmail) {
+      //Title, status, deadline and email are required
+      return res.status(400).json({ error: 'Incorrect information' });
     }
 
-    const newTask = new Task({ title, status, deadline });
+    const newTask = new Task({ title, status, deadline , userEmail});
     await newTask.save();
     res.status(201).json(newTask);
   } catch (error) {
@@ -183,9 +194,11 @@ app.post('/api/tasks', async (req, res) => {
 // Update a task
 app.put('/api/tasks/:id', async (req, res) => {
   try {
-    const updatedTask = await Task.findByIdAndUpdate(
-      req.params.id,
-      req.body,
+    const { userEmail, ...updates } = req.body;
+    if (!userEmail) return res.status(400).json({ error: 'userEmail required' });
+    const updatedTask = await Task.findOneAndUpdate(
+     { _id: req.params.id, userEmail },
+      updates,
       { new: true }
     );
     if (!updatedTask) return res.status(404).json({ error: 'Task not found' });
@@ -199,11 +212,11 @@ app.put('/api/tasks/:id', async (req, res) => {
 // Update task status
 app.patch('/api/tasks/:id/status', async (req, res) => {
   try {
-    const { status } = req.body;
-    if (!status) return res.status(400).json({ error: 'Status is required' });
+    const { status , userEmail } = req.body;
+    if (!status|| !userEmail) return res.status(400).json({ error: 'Status and Email is required' });
 
     const updatedTask = await Task.findByIdAndUpdate(
-      req.params.id,
+      { _id: req.params.id, userEmail },
       { status },
       { new: true }
     );
@@ -217,8 +230,10 @@ app.patch('/api/tasks/:id/status', async (req, res) => {
 // Delete a task
 app.delete('/api/tasks/:id', async (req, res) => {
   try {
-    const deletedTask = await Task.findByIdAndDelete(req.params.id);
-    if (!deletedTask) return res.status(404).json({ error: 'Task not found' });
+    const userEmail = req.query.userEmail;
+    if (!userEmail) return res.status(400).json({ error: 'userEmail required' });
+    const deletedTask = await Task.findByIdAndDelete(req.params.id, userEmail);
+    if (!deletedTask) return res.status(404).json({ error: 'Task not found or not yours' });
     res.json(deletedTask);
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete task' });
