@@ -260,9 +260,8 @@ function Done() {
                             </div>
                         </div>
 
-                        {/* Action Buttons: Edit, Delete, Close */}
-                        <div className="action-buttons">
-                            <button
+                        {/* Action Buttons: Edit, Delete, Close 
+                         <button
                                 className="edit-button"
                                 onClick={() => {
                                     navigate('/addtask', { state: { taskData: selectedTask, isEditing: true } });
@@ -270,6 +269,9 @@ function Done() {
                             >
                                 Edit
                             </button>
+                        */}
+                        <div className="action-buttons">
+                           
                             <button className="delete-button" onClick={() => deleteTask(selectedTask._id)}>Delete</button>
                             <button className="close-button" onClick={() => setShowTaskPopup(false)}>Close</button>
                         </div>
@@ -281,36 +283,7 @@ function Done() {
                             <div className="detail-item">Category: {selectedTask.status}</div>
                         </div>
 
-                        {/* Status Buttons: Work on, Complete */}
-                        <div className="status-buttons">
-                            <button
-                                className={`work-button ${selectedTask.status === 'in-progress' ? 'active' : ''}`}
-                                onClick={async () => {
-                                    const success = await updateTaskStatus(selectedTask._id, 'in-progress');
-                                    if (success) {
-                                      setShowTaskPopup(false);
-                                      // Optional: navigate to pomodoro timer
-                                      navigate('/pomodoro');
-                                    }
-                                }}
-                            >
-                                Work on
-                            </button>
-                            <button
-                                className={`uncomplete-button ${selectedTask.status === 'todo' ? 'active' : ''}`}
-                                onClick={async () => {
-                                    const success = await updateTaskStatus(selectedTask._id, 'todo');
-                                    if (success) {
-                                      setShowTaskPopup(false);
-                                      // Optional: navigate to done page
-                                      //navigate('/todo');
-                                    }
-                              
-                                }}
-                            >
-                                Uncomplete
-                            </button>
-                        </div>
+
                     </div>
                 </div>
             )}

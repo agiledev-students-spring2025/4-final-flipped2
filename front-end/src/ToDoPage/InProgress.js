@@ -262,9 +262,8 @@ function InProgress() {
                             </div>
                         </div>
 
-                        {/* Action Buttons: Edit, Delete, Close */}
-                        <div className="action-buttons">
-                            <button
+                        {/* Action Buttons: Edit, Delete, Close 
+                        <button
                                 className="edit-button"
                                 onClick={() => {
                                     navigate('/addtask', { state: { taskData: selectedTask, isEditing: true } });
@@ -272,6 +271,9 @@ function InProgress() {
                             >
                                 Edit
                             </button>
+                        */}
+                        <div className="action-buttons">
+                            
                             <button className="delete-button" onClick={() => deleteTask(selectedTask._id)}>Delete</button>
                             <button className="close-button" onClick={() => setShowTaskPopup(false)}>Close</button>
                         </div>
@@ -283,7 +285,7 @@ function InProgress() {
                             <div className="detail-item">Category: {selectedTask.status}</div>
                         </div>
 
-                        {/* Status Buttons: Work on, Complete */}
+                        {/* Status Buttons: Work on, Complete 
                         <div className="status-buttons">
                             <button
                                 className={`work-button ${selectedTask.status === 'in-progress' ? 'active' : ''}`}
@@ -310,6 +312,8 @@ function InProgress() {
                                 Complete
                             </button>
                         </div>
+                        */}
+                        
                     </div>
                 </div>
             )}

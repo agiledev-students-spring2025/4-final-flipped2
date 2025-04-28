@@ -24,7 +24,21 @@ function ToDo() {
         });
     };
 
-    // Connect to database
+
+    // pull fetch logic out so we can call it after delete too
+  const fetchTasks = async () => {
+    const userEmail = localStorage.getItem('userEmail');
+    const res = await fetch(
+        `http://localhost:5001/api/tasks/todo?userEmail=${encodeURIComponent(userEmail)}`
+    );
+    const data = await res.json();
+    setTasks(Array.isArray(data) ? data : []);
+    setIsLoading(false);
+    };
+    useEffect(() => { fetchTasks(); }, []);
+    
+
+   /*  // Connect to database
     useEffect(() => {
         const fetchTasks = async () => {
             try {
@@ -51,7 +65,7 @@ function ToDo() {
             }
         };
         fetchTasks();
-    }, []);
+    }, []); */
 
     useEffect(() => {
         console.log('Tasks state updated:', tasks); // Check if state updates
@@ -60,11 +74,7 @@ function ToDo() {
 
 
 
-    // Sort tasks by deadline
-    const filteredTasks = tasks
-        .filter(task => task.status === 'todo')
-        .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
-
+    
     // Generate dates from calendar for the current month(- 7 days, +14 days)
     const generateCalendarDates = () => {
         const now = new Date();
@@ -127,12 +137,12 @@ function ToDo() {
           
           // Update the backend
           const userEmail = localStorage.getItem('userEmail'); 
-          const response = await fetch(`http://localhost:5001/api/tasks/${taskId}?userEmail=${encodeURIComponent(userEmail)}`, {
+          const response = await fetch(`http://localhost:5001/api/tasks/${taskId}/status?userEmail=${encodeURIComponent(userEmail)}`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ status: newStatus, userEmail }),
+            body: JSON.stringify({ status: newStatus}),
           });
       
           if (!response.ok) {
@@ -160,27 +170,30 @@ function ToDo() {
     };
 
     // Delete a task
-    const deleteTask = (taskId) => {
+    const deleteTask = async (taskId) => {
         console.log("Deleting task with ID:", taskId);
-        const userEmail = localStorage.getItem('userEmail');
-        fetch(`http://localhost:5001/api/tasks/${taskId}?userEmail=${encodeURIComponent(userEmail)}`, {
-            method: 'DELETE'
-        })
-            .then(response => {
-                if (!response.ok) throw new Error('Failed to delete task');
-                return response.json();
-            })
-            .then(deletedTask => {
-                console.log("Task deleted successfully:", deletedTask);
-                // Update local state using MongoDB _id
-                setTasks(prevTasks => prevTasks.filter(task => task._id !== taskId));
-                if (selectedTask && selectedTask._id === taskId) {
-                    setSelectedTask(null);
-                    setShowTaskPopup(false);
-                }
-            })
-            .catch(err => console.error("Error deleting task:", err));
-    };
+        // Optimistically remove from local UI immediately:
+        setTasks(ts => ts.filter(t => t._id !== taskId));
+        // hide the popup
+        setSelectedTask(null);
+        setShowTaskPopup(false);
+    
+        // Tell the server to delete
+        try {
+            const userEmail = localStorage.getItem('userEmail');
+            const res = await fetch(
+            `http://localhost:5001/api/tasks/${taskId}?userEmail=${encodeURIComponent(userEmail)}`,
+            { method: 'DELETE' }
+            );
+            if (!res.ok) throw new Error(`Delete failed ${res.status}`);
+            console.log("Task deleted on server");
+            // re-fetch to re-sync in case anything else changed:
+            fetchTasks();
+        } catch (err) {
+            console.error("Error deleting task:", err);
+            // if you want, you could re-add the task back into state here
+        }
+        };
 
 
     return (
@@ -206,12 +219,15 @@ function ToDo() {
             </div>
 
             <div className="tasks-list">
-                {isLoading ? (
-                    <div className="loading-message">Loading tasks...</div>
-                ) : filteredTasks.length === 0 ? (
-                    <div className="empty-message">No tasks found</div>
-                ) : (
-                    filteredTasks.map(task => (
+            {isLoading ? (
+                <div className="loading-message">Loading tasks...</div>
+            ) : tasks.filter(task => task.status === 'todo').length === 0 ? (
+                <div className="empty-message">No tasks found</div>
+            ) : (
+                tasks
+                    .filter(task => task.status === 'todo')
+                    .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
+                    .map(task => (
                         <div
                             key={task._id}
                             className="task-item"
@@ -224,7 +240,7 @@ function ToDo() {
                         </div>
                     ))
                 )}
-            </div>
+             </div>  
 
             <div className="calendar-section">
                 <div className="calendar-scroll-container">
@@ -264,16 +280,17 @@ function ToDo() {
                             </div>
                         </div>
 
-                        {/* Action Buttons: Edit, Delete, Close */}
-                        <div className="action-buttons">
-                            <button
+                        {/* Action Buttons: Edit, Delete, Close
+                        <button
                                 className="edit-button"
                                 onClick={() => {
                                     navigate('/addtask', { state: { taskData: selectedTask, isEditing: true } });
                                 }}
                             >
                                 Edit
-                            </button>
+                            </button> */}
+                        <div className="action-buttons">
+                            
                             <button className="delete-button" onClick={() => deleteTask(selectedTask._id)}>Delete</button>
                             <button className="close-button" onClick={() => setShowTaskPopup(false)}>Close</button>
                         </div>
@@ -285,7 +302,7 @@ function ToDo() {
                             <div className="detail-item">Category: {selectedTask.status}</div>
                         </div>
 
-                        {/* Status Buttons: Work on, Complete */}
+                        {/* Status Buttons: Work on, Complete 
                         <div className="status-buttons">
                             <button
                                 className={`work-button ${selectedTask.status === 'in-progress' ? 'active' : ''}`}
@@ -314,6 +331,8 @@ function ToDo() {
                                 Complete
                             </button>
                         </div>
+                        */}
+                        
                     </div>
                 </div>
             )}
