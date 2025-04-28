@@ -37,7 +37,7 @@ const PomodoroTimer = () => {
   const startTimer = () => {
 
      // Log session start to backend
-     fetch(`${BACKEND_URL}/api/start-session`, {
+     fetch(`${process.env.REACT_APP_API_URL}/api/start-session`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId: "user1" })

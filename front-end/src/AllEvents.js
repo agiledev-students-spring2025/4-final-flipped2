@@ -10,7 +10,7 @@ const AllEvents = () => {
 
   const fetchEvents = () => {
     const userEmail = localStorage.getItem('userEmail');
-    fetch(`http://localhost:5001/api/events?userEmail=${encodeURIComponent(userEmail)}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/events?userEmail=${encodeURIComponent(userEmail)}`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setEvents(data);

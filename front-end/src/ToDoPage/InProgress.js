@@ -31,7 +31,7 @@ function InProgress() {
                 try {
                     const userEmail = localStorage.getItem('userEmail');
                     const response = await fetch(
-                        `http://localhost:5001/api/tasks/in-progress?userEmail=${encodeURIComponent(userEmail)}`
+                        `${process.env.REACT_APP_API_URL}/api/tasks/in-progress?userEmail=${encodeURIComponent(userEmail)}`
                     );
                     if (!response.ok) throw new Error('Network response was not ok');
     
@@ -91,7 +91,7 @@ function InProgress() {
           // Update the backend
           const userEmail = localStorage.getItem('userEmail'); 
           const response = await fetch(
-            `http://localhost:5001/api/tasks/${taskId}/status?userEmail=${encodeURIComponent(userEmail)}`,
+            `${process.env.REACT_APP_API_URL}/api/tasks/${taskId}/status?userEmail=${encodeURIComponent(userEmail)}`,
             {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
@@ -127,7 +127,7 @@ function InProgress() {
     const deleteTask = (taskId) => {
         console.log("Deleting task with ID:", taskId);
         const userEmail = localStorage.getItem('userEmail');
-        fetch(`http://localhost:5001/api/tasks/${taskId}?userEmail=${encodeURIComponent(userEmail)}`, {
+        fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${taskId}?userEmail=${encodeURIComponent(userEmail)}`, {
             method: 'DELETE'
         })
             .then(response => {
