@@ -28,7 +28,10 @@ function Done() {
     useEffect(() => {
         const fetchTasks = async () => {
             try {
-                const response = await fetch('http://localhost:5001/api/tasks/done');
+                const userEmail = localStorage.getItem('userEmail');
+                const response = await fetch(
+                    `http://localhost:5001/api/tasks/done?userEmail=${encodeURIComponent(userEmail)}`
+                );
                 if (!response.ok) throw new Error('Network response was not ok');
 
                 const data = await response.json();
@@ -118,13 +121,15 @@ function Done() {
           console.log("Updating task status for ID:", taskId, "to:", newStatus);
           
           // Update the backend
-          const response = await fetch(`http://localhost:5001/api/tasks/${taskId}/status`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ status: newStatus }),
-          });
+          const userEmail = localStorage.getItem('userEmail'); 
+          const response = await fetch(
+            `http://localhost:5001/api/tasks/${taskId}/status?userEmail=${encodeURIComponent(userEmail)}`,
+            {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: newStatus })
+            }
+          );
       
           if (!response.ok) {
             console.error("Server response not OK:", response.status);
@@ -136,7 +141,7 @@ function Done() {
       
           // Update local state - using MongoDB _id
           setTasks(prevTasks => prevTasks.map(task =>
-            task._id === taskId ? { ...task, status: newStatus } : task
+            task._id === taskId ? { ...task, status: newStatus} : task
           ));
           
           if (selectedTask && selectedTask._id === taskId) {
@@ -153,7 +158,8 @@ function Done() {
     // Delete a task
     const deleteTask = (taskId) => {
         console.log("Deleting task with ID:", taskId);
-        fetch(`http://localhost:5001/api/tasks/${taskId}`, {
+        const userEmail = localStorage.getItem('userEmail');
+        fetch(`http://localhost:5001/api/tasks/${taskId}?userEmail=${encodeURIComponent(userEmail)}`, {
             method: 'DELETE'
         })
             .then(response => {

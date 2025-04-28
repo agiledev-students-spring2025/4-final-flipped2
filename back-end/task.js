@@ -14,6 +14,9 @@ const taskSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  userEmail: { 
+    type: String, required: true 
+  },   
   createdAt: {
     type: Date,
     default: Date.now

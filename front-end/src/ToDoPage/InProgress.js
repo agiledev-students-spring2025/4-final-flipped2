@@ -29,7 +29,10 @@ function InProgress() {
     useEffect(() => {
             const fetchTasks = async () => {
                 try {
-                    const response = await fetch('http://localhost:5001/api/tasks/in-progress');
+                    const userEmail = localStorage.getItem('userEmail');
+                    const response = await fetch(
+                        `http://localhost:5001/api/tasks/in-progress?userEmail=${encodeURIComponent(userEmail)}`
+                    );
                     if (!response.ok) throw new Error('Network response was not ok');
     
                     const data = await response.json();
@@ -86,13 +89,15 @@ function InProgress() {
           console.log("Updating task status for ID:", taskId, "to:", newStatus);
           
           // Update the backend
-          const response = await fetch(`http://localhost:5001/api/tasks/${taskId}/status`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ status: newStatus }),
-          });
+          const userEmail = localStorage.getItem('userEmail'); 
+          const response = await fetch(
+            `http://localhost:5001/api/tasks/${taskId}/status?userEmail=${encodeURIComponent(userEmail)}`,
+            {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: newStatus })
+            }
+          );
       
           if (!response.ok) {
             console.error("Server response not OK:", response.status);
@@ -121,7 +126,8 @@ function InProgress() {
     // Delete a task
     const deleteTask = (taskId) => {
         console.log("Deleting task with ID:", taskId);
-        fetch(`http://localhost:5001/api/tasks/${taskId}`, {
+        const userEmail = localStorage.getItem('userEmail');
+        fetch(`http://localhost:5001/api/tasks/${taskId}?userEmail=${encodeURIComponent(userEmail)}`, {
             method: 'DELETE'
         })
             .then(response => {
