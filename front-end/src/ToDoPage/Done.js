@@ -14,7 +14,7 @@ function Done() {
     const navigate = useNavigate();
 
     const toggleSidebar = () => setShowSidebar(!showSidebar);
-    
+
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', {
@@ -24,7 +24,7 @@ function Done() {
         });
     };
 
-    // Make up data (change after database)
+    // Database
     useEffect(() => {
         const fetchTasks = async () => {
             try {
@@ -58,7 +58,6 @@ function Done() {
         .filter(task => task.status === 'done')
         .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
-    // Generate dates from calendar for the current month(+- a week)
     // Generate dates from calendar for the current month(- 7 days, +14 days)
     const generateCalendarDates = () => {
         const now = new Date();
@@ -118,40 +117,45 @@ function Done() {
     // Update task status
     const updateTaskStatus = async (taskId, newStatus) => {
         try {
-          console.log("Updating task status for ID:", taskId, "to:", newStatus);
-          
-          // Update the backend
-          const userEmail = localStorage.getItem('userEmail'); 
-          const response = await fetch(
-            `${process.env.REACT_APP_API_URL}/api/tasks/${taskId}/status?userEmail=${encodeURIComponent(userEmail)}`,
-            {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ status: newStatus })
-            }
-          );
-      
-          if (!response.ok) {
-            console.error("Server response not OK:", response.status);
-            throw new Error('Failed to update task status');
-          }
+            console.log("Updating task status for ID:", taskId, "to:", newStatus);
 
-          const updatedTask = await response.json();
-          console.log("Task updated successfully:", updatedTask);
-      
-          // Update local state - using MongoDB _id
-          setTasks(prevTasks => prevTasks.map(task =>
-            task._id === taskId ? { ...task, status: newStatus} : task
-          ));
-          
-          if (selectedTask && selectedTask._id === taskId) {
-            setSelectedTask({ ...selectedTask, status: newStatus });
-          }
-      
-          return true; // Success
+            const userEmail = localStorage.getItem('userEmail');
+            const response = await fetch(
+                `${process.env.REACT_APP_API_URL}/api/tasks/${taskId}/status`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        userEmail: userEmail
+                    })
+                }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Server error details:", errorData);
+                throw new Error('Failed to update task status');
+            }
+
+            const updatedTask = await response.json();
+
+            // Update local state
+            setTasks(prevTasks => prevTasks.map(task =>
+                task._id === taskId ? { ...task, status: newStatus } : task
+            ));
+
+            if (selectedTask && selectedTask._id === taskId) {
+                setSelectedTask({ ...selectedTask, status: newStatus });
+            }
+
+            setShowTaskPopup(false);
+            return true;
         } catch (error) {
-          console.error('Error updating task status:', error);
-          return false; // Failure
+            console.error('Error updating task status:', error);
+            return false;
         }
     };
 
@@ -260,8 +264,9 @@ function Done() {
                             </div>
                         </div>
 
-                        {/* Action Buttons: Edit, Delete, Close 
-                         <button
+                        {/* Action Buttons: Edit, Delete, Close */}
+                        <div className="action-buttons">
+                            <button
                                 className="edit-button"
                                 onClick={() => {
                                     navigate('/addtask', { state: { taskData: selectedTask, isEditing: true } });
@@ -269,9 +274,6 @@ function Done() {
                             >
                                 Edit
                             </button>
-                        */}
-                        <div className="action-buttons">
-                           
                             <button className="delete-button" onClick={() => deleteTask(selectedTask._id)}>Delete</button>
                             <button className="close-button" onClick={() => setShowTaskPopup(false)}>Close</button>
                         </div>
@@ -283,7 +285,22 @@ function Done() {
                             <div className="detail-item">Category: {selectedTask.status}</div>
                         </div>
 
-
+                        {/* Status Buttons */}
+                        <div className="status-buttons">
+                            {selectedTask.status === 'done' && (
+                                <button
+                                    className="uncomplete-button"
+                                    onClick={async () => {
+                                        const success = await updateTaskStatus(selectedTask._id, 'todo');
+                                        if (success) {
+                                            setShowTaskPopup(false);
+                                        }
+                                    }}
+                                >
+                                    Reopen Task
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
