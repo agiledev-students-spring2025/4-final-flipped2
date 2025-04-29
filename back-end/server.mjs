@@ -409,12 +409,12 @@ app.post('/api/end-session', (req, res) => {
 });
 
 // Common routes
-app.get('/', (req, res) => {
+/* app.get('/', (req, res) => {
   res.send('basic app route is running');
 });
 app.get('/pomodoro', (req, res) => {
   res.send('Flipped Pomodoro is running');
-});
+}); */
 
 // Static Files
 app.use(express.static(path.join(__dirname, '../front-end/build')));
@@ -422,7 +422,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../front-end/build/index.html'));
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, () => { 
   console.log(`Server is running on port ${PORT}`);
 });
 
