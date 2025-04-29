@@ -22,13 +22,13 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: process.env.CLIENT_URL || 'http://localhost:5000',
   credentials: true
 }));
 
 // Middleware to parse JSON bodies (if needed)
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../front-end/build')));
+
 app.use(express.static(path.join(__dirname, '../front-end/build')));
 
 // Todo API start
@@ -418,7 +418,7 @@ app.get('/pomodoro', (req, res) => {
 
 // Static Files
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../front-end/public/index.html'));
+  res.sendFile(path.join(__dirname, '../front-end/build/index.html'));
 });
 
 app.listen(PORT, () => {
