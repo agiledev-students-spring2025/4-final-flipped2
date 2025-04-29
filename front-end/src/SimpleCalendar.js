@@ -24,7 +24,7 @@ const SimpleCalendar = () => {
 
   const fetchEvents = () => {
     const userEmail = localStorage.getItem('userEmail');
-    fetch(`http://localhost:5001/api/events?userEmail=${encodeURIComponent(userEmail)}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/events?userEmail=${encodeURIComponent(userEmail)}`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setEvents(data);
@@ -43,7 +43,7 @@ const SimpleCalendar = () => {
 
   const handleUpdate = () => {
     const userEmail = localStorage.getItem('userEmail');
-    fetch(`http://localhost:5001/api/events/${editingEvent._id}`, {
+    fetch(`${process.env.REACT_APP_API_URL}/api/events/${editingEvent._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(editingEvent),
@@ -56,7 +56,7 @@ const SimpleCalendar = () => {
   };
 
   const handleDelete = () => {
-    fetch(`http://localhost:5001/api/events/${editingEvent._id}`, {
+    fetch(`${process.env.REACT_APP_API_URL}/api/events/${editingEvent._id}`, {
       method: "DELETE",
     })
       .then(() => {
