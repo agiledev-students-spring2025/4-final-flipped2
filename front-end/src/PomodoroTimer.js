@@ -7,7 +7,7 @@ import Sidebar from './Sidebar';
 const PomodoroTimer = () => {
 
   // Note: Need to change URL for .env for deployment 
-  const BACKEND_URL = "http://localhost:5001"; // Define backend URL here
+  const BACKEND_URL = process.env.REACT_APP_API_URL; // Define backend URL here
 
   // Default 30 minutes in seconds (30 * 60)
   const DEFAULT_TIME = 30 * 60;
