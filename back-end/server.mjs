@@ -4,10 +4,12 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
 import connectDB from './db.js';
+import bcrypt from 'bcrypt';
+
 import Event from './events.js';
 import User from './users.js';
-import bcrypt from 'bcrypt';
 import Task from './task.js';
+
 
 
 
@@ -22,7 +24,7 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3001',
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
   credentials: true
 }));
 
@@ -152,7 +154,7 @@ app.get('/api/tasks/:status', async (req, res) => {
     const userEmail = req.query.userEmail;
     if (!userEmail) return res.status(400).json({ error: 'userEmail required' });
     const status = req.params.status.toLowerCase();
-    const tasks = await Task.find({ status, userEmail  })
+    const tasks = await Task.find({ status, userEmail })
       .sort({ deadline: 1 });
     res.json(tasks);
   } catch (error) {
@@ -176,14 +178,14 @@ app.get('/api/task/:id', async (req, res) => {
 // Create a new task
 app.post('/api/tasks', async (req, res) => {
   try {
-    const { title, status, deadline,  userEmail } = req.body;
+    const { title, status, deadline, userEmail } = req.body;
 
-    if (!title || !status || !deadline||!userEmail) {
+    if (!title || !status || !deadline || !userEmail) {
       //Title, status, deadline and email are required
       return res.status(400).json({ error: 'Incorrect information' });
     }
 
-    const newTask = new Task({ title, status, deadline , userEmail});
+    const newTask = new Task({ title, status, deadline, userEmail });
     await newTask.save();
     res.status(201).json(newTask);
   } catch (error) {
@@ -197,7 +199,7 @@ app.put('/api/tasks/:id', async (req, res) => {
     const { userEmail, ...updates } = req.body;
     if (!userEmail) return res.status(400).json({ error: 'userEmail required' });
     const updatedTask = await Task.findOneAndUpdate(
-     { _id: req.params.id, userEmail },
+      { _id: req.params.id, userEmail },
       updates,
       { new: true }
     );
@@ -212,14 +214,15 @@ app.put('/api/tasks/:id', async (req, res) => {
 // Update task status
 app.patch('/api/tasks/:id/status', async (req, res) => {
   try {
-    const { status , userEmail } = req.body;
-    if (!status|| !userEmail) return res.status(400).json({ error: 'Status and Email is required' });
+    const { status, userEmail } = req.body;
+    if (!status || !userEmail) return res.status(400).json({ error: 'Status and Email are required' });
 
-    const updatedTask = await Task.findByIdAndUpdate(
+    const updatedTask = await Task.findOneAndUpdate(
       { _id: req.params.id, userEmail },
       { status },
       { new: true }
     );
+
     if (!updatedTask) return res.status(404).json({ error: 'Task not found' });
     res.json(updatedTask);
   } catch (error) {
@@ -422,7 +425,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../front-end/build/index.html'));
 });
 
-app.listen(PORT, () => { 
+app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 

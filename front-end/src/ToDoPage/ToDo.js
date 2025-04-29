@@ -26,46 +26,46 @@ function ToDo() {
 
 
     // pull fetch logic out so we can call it after delete too
-  const fetchTasks = async () => {
-    const userEmail = localStorage.getItem('userEmail');
-    const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/tasks/todo?userEmail=${encodeURIComponent(userEmail)}`
-    );
-    const data = await res.json();
-    setTasks(Array.isArray(data) ? data : []);
-    setIsLoading(false);
+    const fetchTasks = async () => {
+        const userEmail = localStorage.getItem('userEmail');
+        const res = await fetch(
+            `${process.env.REACT_APP_API_URL}/api/tasks/todo?userEmail=${encodeURIComponent(userEmail)}`
+        );
+        const data = await res.json();
+        setTasks(Array.isArray(data) ? data : []);
+        setIsLoading(false);
     };
     useEffect(() => { fetchTasks(); }, []);
-    
 
-   /*  // Connect to database
-    useEffect(() => {
-        const fetchTasks = async () => {
-            try {
-                const userEmail = localStorage.getItem('userEmail');
-                const response = await fetch(
-                    `http://localhost:5001/api/tasks/todo?userEmail=${encodeURIComponent(userEmail)}`
-                );
-                if (!response.ok) throw new Error('Network response was not ok');
 
-                const data = await response.json();
-                // Ensure we have an array, even if empty
-                setTasks(Array.isArray(data) ? data : []);
-
-                // Fetch calendar data
-                const calendarResponse = await fetch('http://localhost:5001/api/calendar');
-                if (!calendarResponse.ok) throw new Error('Calendar fetch failed');
-                const calendarData = await calendarResponse.json();
-
-            } catch (error) {
-                console.error('Error fetching tasks:', error);
-                setTasks([]);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchTasks();
-    }, []); */
+    /*  // Connect to database
+     useEffect(() => {
+         const fetchTasks = async () => {
+             try {
+                 const userEmail = localStorage.getItem('userEmail');
+                 const response = await fetch(
+                     `http://localhost:5001/api/tasks/todo?userEmail=${encodeURIComponent(userEmail)}`
+                 );
+                 if (!response.ok) throw new Error('Network response was not ok');
+ 
+                 const data = await response.json();
+                 // Ensure we have an array, even if empty
+                 setTasks(Array.isArray(data) ? data : []);
+ 
+                 // Fetch calendar data
+                 const calendarResponse = await fetch('http://localhost:5001/api/calendar');
+                 if (!calendarResponse.ok) throw new Error('Calendar fetch failed');
+                 const calendarData = await calendarResponse.json();
+ 
+             } catch (error) {
+                 console.error('Error fetching tasks:', error);
+                 setTasks([]);
+             } finally {
+                 setIsLoading(false);
+             }
+         };
+         fetchTasks();
+     }, []); */
 
     useEffect(() => {
         console.log('Tasks state updated:', tasks); // Check if state updates
@@ -74,7 +74,7 @@ function ToDo() {
 
 
 
-    
+
     // Generate dates from calendar for the current month(- 7 days, +14 days)
     const generateCalendarDates = () => {
         const now = new Date();
@@ -133,39 +133,40 @@ function ToDo() {
     // Update task status
     const updateTaskStatus = async (taskId, newStatus) => {
         try {
-          console.log("Updating task status for ID:", taskId, "to:", newStatus);
-          
-          // Update the backend
-          const userEmail = localStorage.getItem('userEmail'); 
-          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${taskId}/status?userEmail=${encodeURIComponent(userEmail)}`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ status: newStatus}),
-          });
-      
-          if (!response.ok) {
-            console.error("Server response not OK:", response.status);
-            throw new Error('Failed to update task status');
-          }
+            console.log("Updating task status for ID:", taskId, "to:", newStatus);
 
-          const updatedTask = await response.json();
-          console.log("Task updated successfully:", updatedTask);
-      
-          // Update local state
-          setTasks(prevTasks => prevTasks.map(task =>
-            task._id === taskId ? { ...task, status: newStatus } : task
-          ));
-          
-          if (selectedTask && selectedTask._id === taskId) {
-            setSelectedTask({ ...selectedTask, status: newStatus });
-          }
-      
-          return true; // Success
+            const userEmail = localStorage.getItem('userEmail');
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${taskId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    status: newStatus,
+                    userEmail: userEmail
+                }),
+            });
+
+            if (!response.ok) {
+                console.error("Server response not OK:", response.status);
+                throw new Error('Failed to update task status');
+            }
+
+            const updatedTask = await response.json();
+            console.log("Task updated successfully:", updatedTask);
+
+            // Remove the task from local state instead of just updating its status
+            setTasks(prevTasks => prevTasks.filter(task => task._id !== taskId));
+
+            if (selectedTask && selectedTask._id === taskId) {
+                setSelectedTask(null);
+            }
+
+            setShowTaskPopup(false);
+            return true;
         } catch (error) {
-          console.error('Error updating task status:', error);
-          return false; // Failure
+            console.error('Error updating task status:', error);
+            return false;
         }
     };
 
@@ -177,13 +178,13 @@ function ToDo() {
         // hide the popup
         setSelectedTask(null);
         setShowTaskPopup(false);
-    
+
         // Tell the server to delete
         try {
             const userEmail = localStorage.getItem('userEmail');
             const res = await fetch(
-            `${process.env.REACT_APP_API_URL}/api/tasks/${taskId}?userEmail=${encodeURIComponent(userEmail)}`,
-            { method: 'DELETE' }
+                `${process.env.REACT_APP_API_URL}/api/tasks/${taskId}?userEmail=${encodeURIComponent(userEmail)}`,
+                { method: 'DELETE' }
             );
             if (!res.ok) throw new Error(`Delete failed ${res.status}`);
             console.log("Task deleted on server");
@@ -193,7 +194,7 @@ function ToDo() {
             console.error("Error deleting task:", err);
             // if you want, you could re-add the task back into state here
         }
-        };
+    };
 
 
     return (
@@ -219,28 +220,28 @@ function ToDo() {
             </div>
 
             <div className="tasks-list">
-            {isLoading ? (
-                <div className="loading-message">Loading tasks...</div>
-            ) : tasks.filter(task => task.status === 'todo').length === 0 ? (
-                <div className="empty-message">No tasks found</div>
-            ) : (
-                tasks
-                    .filter(task => task.status === 'todo')
-                    .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
-                    .map(task => (
-                        <div
-                            key={task._id}
-                            className="task-item"
-                            onClick={() => {
-                                setSelectedTask(task);
-                                setShowTaskPopup(true);
-                            }}
-                        >
-                            <div className="task-title">{task.title}</div>
-                        </div>
-                    ))
+                {isLoading ? (
+                    <div className="loading-message">Loading tasks...</div>
+                ) : tasks.filter(task => task.status === 'todo').length === 0 ? (
+                    <div className="empty-message">No tasks found</div>
+                ) : (
+                    tasks
+                        .filter(task => task.status === 'todo')
+                        .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
+                        .map(task => (
+                            <div
+                                key={task._id}
+                                className="task-item"
+                                onClick={() => {
+                                    setSelectedTask(task);
+                                    setShowTaskPopup(true);
+                                }}
+                            >
+                                <div className="task-title">{task.title}</div>
+                            </div>
+                        ))
                 )}
-             </div>  
+            </div>
 
             <div className="calendar-section">
                 <div className="calendar-scroll-container">
@@ -280,19 +281,23 @@ function ToDo() {
                             </div>
                         </div>
 
-                        {/* Action Buttons: Edit, Delete, Close
-                        <button
+                        {/* Action Buttons: Edit, Delete, Close */}
+
+                        <div className="action-buttons">
+                            <button
                                 className="edit-button"
                                 onClick={() => {
                                     navigate('/addtask', { state: { taskData: selectedTask, isEditing: true } });
                                 }}
                             >
                                 Edit
-                            </button> */}
-                        <div className="action-buttons">
-                            
-                            <button className="delete-button" onClick={() => deleteTask(selectedTask._id)}>Delete</button>
-                            <button className="close-button" onClick={() => setShowTaskPopup(false)}>Close</button>
+                            </button>
+                            <button className="delete-button" onClick={() => deleteTask(selectedTask._id)}>
+                                Delete
+                            </button>
+                            <button className="close-button" onClick={() => setShowTaskPopup(false)}>
+                                Close
+                            </button>
                         </div>
 
                         <div className="task-details">
@@ -302,16 +307,16 @@ function ToDo() {
                             <div className="detail-item">Category: {selectedTask.status}</div>
                         </div>
 
-                        {/* Status Buttons: Work on, Complete 
+                        {/* Status Buttons: Work on, Complete */}
                         <div className="status-buttons">
                             <button
                                 className={`work-button ${selectedTask.status === 'in-progress' ? 'active' : ''}`}
                                 onClick={async () => {
                                     const success = await updateTaskStatus(selectedTask._id, 'in-progress');
                                     if (success) {
-                                      setShowTaskPopup(false);
-                                      // navigate to pomodoro timer
-                                      navigate('/pomodoro');
+                                        setShowTaskPopup(false);
+                                        // navigate to pomodoro timer
+                                        navigate('/pomodoro');
                                     }
                                 }}
                             >
@@ -322,17 +327,17 @@ function ToDo() {
                                 onClick={async () => {
                                     const success = await updateTaskStatus(selectedTask._id, 'done');
                                     if (success) {
-                                      setShowTaskPopup(false);
-                                      // navigate to done page
-                                      // navigate('/done');
+                                        setShowTaskPopup(false);
+                                        // navigate to done page
+                                        // navigate('/done');
                                     }
                                 }}
                             >
                                 Complete
                             </button>
                         </div>
-                        */}
-                        
+
+
                     </div>
                 </div>
             )}

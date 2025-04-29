@@ -10,7 +10,7 @@ const AddTaskPopup = () => {
   const [title, setTitle] = useState('');
   const [deadline, setDeadline] = useState('');
   const [status, setStatus] = useState('');
-  
+
 
   useEffect(() => {
     if (taskData) {
@@ -25,20 +25,29 @@ const AddTaskPopup = () => {
       alert("Please fill in all fields.");
       return;
     }
-  
+
     const userEmail = localStorage.getItem('userEmail');
-    const formattedDeadline = new Date(deadline);
+
+    // Create date in local timezone (matches calendar display)
+    const localDate = new Date(deadline);
+    const formattedDeadline = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate()+1);
+
+    const newTask = {
+      title,
+      deadline: formattedDeadline,
+      status,
+      userEmail
+    };
 
     if (isNaN(formattedDeadline.getTime())) {
       alert("Please enter a valid date in YYYY-MM-DD format.");
       return;
     }
-     const newTask = { title, deadline: formattedDeadline, status, userEmail };
-  
+
     if (isEditing) {
       newTask.id = taskData.id;
       fetch(
-        `${process.env.REACT_APP_API_URL}/api/tasks/${newTask.id}?userEmail=${encodeURIComponent(userEmail)}`,{
+        `${process.env.REACT_APP_API_URL}/api/tasks/${newTask.id}?userEmail=${encodeURIComponent(userEmail)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newTask)
