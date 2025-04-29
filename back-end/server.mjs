@@ -119,22 +119,38 @@ app.post('/api/signup', async (req, res) => {
 });
 
 app.post('/api/login', async (req, res) => {
-  const { email, password } = req.body;
   try {
+    console.log("LOGIN ATTEMPT, BODY:", req.body); // debug
+    const { email, password } = req.body;
+    if (!email || !password) {
+      console.warn("Missing email or password");
+      return res.status(400).json({ status: 'fail', message: 'Email and password required' });
+    }
+
     const user = await User.findOne({ email });
+    console.log("USER FOUND:", user); // for debug
+
     if (!user) {
+      console.warn("No user found");
       return res.status(401).json({ status: 'fail', message: 'Invalid credentials' });
     }
+
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log("PASSWORD MATCH?", isMatch); // for debug
+
     if (!isMatch) {
+      console.warn("Password does not match");
       return res.status(401).json({ status: 'fail', message: 'Invalid credentials' });
     }
+
     res.json({ status: 'success', message: 'Login successful' });
+
   } catch (err) {
-    console.error(err);
+    console.error("SERVER ERROR DURING LOGIN:", err); // for debug
     res.status(500).json({ status: 'fail', message: 'Server error' });
   }
 });
+
 
 // Get all tasks
 app.get('/api/tasks', async (req, res) => {
