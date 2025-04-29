@@ -11,11 +11,16 @@ const AddTaskPopup = () => {
   const [deadline, setDeadline] = useState('');
   const [status, setStatus] = useState('');
 
-
   useEffect(() => {
     if (taskData) {
       setTitle(taskData.title || '');
-      setDeadline(taskData.deadline || '');
+      if (taskData.deadline) {
+        const date = new Date(taskData.deadline);
+        const formattedDate = date.toISOString().split('T')[0];
+        setDeadline(formattedDate);
+      } else {
+        setDeadline('');
+      }
       setStatus(taskData.status || '');
     }
   }, [taskData]);
@@ -30,39 +35,47 @@ const AddTaskPopup = () => {
 
     // Create date in local timezone (matches calendar display)
     const localDate = new Date(deadline);
-    const formattedDeadline = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate()+1);
-
-    const newTask = {
-      title,
-      deadline: formattedDeadline,
-      status,
-      userEmail
-    };
+    const formattedDeadline = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate() + 1);
 
     if (isNaN(formattedDeadline.getTime())) {
       alert("Please enter a valid date in YYYY-MM-DD format.");
       return;
     }
 
+    const taskPayload = {
+      title,
+      deadline: formattedDeadline,
+      status,
+      userEmail
+    };
+
     if (isEditing) {
-      newTask.id = taskData.id;
+      // Use the taskData._id from the original task data
       fetch(
-        `${process.env.REACT_APP_API_URL}/api/tasks/${newTask.id}?userEmail=${encodeURIComponent(userEmail)}`, {
+        `${process.env.REACT_APP_API_URL}/api/tasks/${taskData._id}?userEmail=${encodeURIComponent(userEmail)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newTask)
+        body: JSON.stringify(taskPayload)
       })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
         .then(data => {
           console.log("Task updated:", data);
           navigate('/todo');
         })
-        .catch(err => console.error("Error updating task:", err));
+        .catch(err => {
+          console.error("Error updating task:", err);
+          alert("Failed to update task. Please try again.");
+        });
     } else {
       fetch(`${process.env.REACT_APP_API_URL}/api/tasks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newTask)
+        body: JSON.stringify(taskPayload)  // Changed from newTask to taskPayload
       })
         .then(response => response.json())
         .then(data => {
