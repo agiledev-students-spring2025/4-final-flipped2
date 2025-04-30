@@ -17,12 +17,20 @@
     "react-router-dom": "^7.3.0",
     "react-scripts": "5.0.1",
     "supertest": "^7.1.0",
+    "enzyme": "^3.11.0",
+    "@wojtekmaj/enzyme-adapter-react-17": "^0.6.6",
+    "sinon": "^15.0.0",
+    "jsdom": "^22.1.0",
+    "node-fetch": "^3.3.0",
+    "c8": "^7.12.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:front": "mocha --require test/setupTests.js --timeout 5000 \"test/**/*.test.js\"",
+    "coverage": "c8 npm run test:front",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
