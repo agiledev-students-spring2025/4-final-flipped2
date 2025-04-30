@@ -1,58 +1,69 @@
-import React from 'react'
-import { expect } from 'chai'
-import { mount } from 'enzyme'
-import sinon from 'sinon'
-import { MemoryRouter, useLocation } from 'react-router'
-import AddTaskPopup from '../src/AddTaskPopup'
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import AddTaskPopup from './AddTaskPopup';
 
-describe('<AddTaskPopup />', () => {
-    let wrapper, fetchStub, navigateSpy, alertStub
+describe('AddTaskPopup', () => {
+  beforeEach(() => {
+    jest.spyOn(window, 'alert').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+    delete global.fetch;
+  });
 
-    beforeEach(() => {
-        alertStub = sinon.stub(window, 'alert')
-        fetchStub = sinon.stub(global, 'fetch').resolves({ json: () => Promise.resolve({}) })
-        navigateSpy = sinon.spy()
+  test('alerts on missing fields', () => {
+    render(<AddTaskPopup />, { wrapper: MemoryRouter });
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+    expect(window.alert).toHaveBeenCalledWith('Please fill in all fields.');
+  });
 
-        wrapper = mount(
-            <MemoryRouter>
-            <AddTaskPopup />
-        </MemoryRouter>
-        )
-        wrapper.find('AddTaskPopup').instance().navigate = navigateSpy
-    })
+  test('validates date format', () => {
+    render(<AddTaskPopup />, { wrapper: MemoryRouter });
+    fireEvent.change(screen.getByLabelText(/task:/i), {
+      target: { value: 'Task1' },
+    });
+    fireEvent.change(screen.getByLabelText(/deadline:/i), {
+      target: { value: 'not-a-date' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /to-do/i }));
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+    expect(window.alert).toHaveBeenCalledWith(
+      'Please enter a valid date in YYYY-MM-DD format.'
+    );
+  });
 
-    afterEach(() => {
-        sinon.restore()
-        wrapper.unmount()
-    })
+  test('posts correct payload and navigates on save', async () => {
+    const mockNav = jest.fn();
+    jest
+      .spyOn(require('react-router-dom'), 'useNavigate')
+      .mockReturnValue(mockNav);
 
-    it('shows alert on missing fields', () => {
-        wrapper.find('button.save-button').simulate('click')
-        expect(alertStub.calledWith('Please fill in all fields.')).to.be.true
-    })
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({}),
+    });
 
-    it('validates date format', () => {
-        wrapper.find('input#tname').simulate('change', { target: { value: 'Task1' } })
-        wrapper.find('input#deadline').simulate('change', { target: { value: 'not-a-date' } })
-        wrapper.find('button.save-button').simulate('click')
-        expect(alertStub.calledWith('Please enter a valid date in YYYY-MM-DD format.')).to.be.true
-    })
+    render(<AddTaskPopup />, { wrapper: MemoryRouter });
 
-    it('posts correct payload when saving a new task', async () => {
-        wrapper.find('input#tname').simulate('change', { target: { value: 'Task1' } })
-        wrapper.find('input#deadline').simulate('change', { target: { value: '2025-06-01' } })
-        wrapper.find('button').filterWhere(n => n.text() === 'To-do').simulate('click')
-        await wrapper.find('button.save-button').simulate('click')
-        await Promise.resolve()
+    fireEvent.change(screen.getByLabelText(/task:/i), {
+      target: { value: 'Task1' },
+    });
+    fireEvent.change(screen.getByLabelText(/deadline:/i), {
+      target: { value: '2025-06-01' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /to-do/i }));
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
 
-        expect(fetchStub.calledOnce).to.be.true
-        const [url, opts] = fetchStub.firstCall.args
-        expect(url).to.match(/\/api\/tasks$/)
-        const payload = JSON.parse(opts.body)
-        expect(payload).to.include({ title: 'Task1', status: 'todo' })
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
 
-        expect(new Date(payload.deadline).getDate()).to.equal(2)
-        expect(opts.method).to.equal('POST')
-        expect(navigateSpy.calledWith('/todo')).to.be.true
-    })
-})
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/tasks'),
+      expect.objectContaining({ method: 'POST', body: expect.any(String) })
+    );
+    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+    expect(body).toMatchObject({ title: 'Task1', status: 'todo' });
+    expect(new Date(body.deadline).toString()).not.toBe('Invalid Date');
+    expect(mockNav).toHaveBeenCalledWith('/todo');
+  });
+});

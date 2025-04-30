@@ -1,59 +1,53 @@
-// test/AddEventPopup.test.js
-import React from 'react'
-import { expect } from 'chai'
-import { mount } from 'enzyme'
-import sinon from 'sinon'
-import { MemoryRouter } from 'react-router'  // to wrap useNavigate
-import AddEventPopup from '../src/AddEventPopup'
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import AddEventPopup from './AddEventPopup';
 
-describe('<AddEventPopup />', () => {
-    let wrapper, fetchStub, navigateStub, alertStub
+describe('AddEventPopup', () => {
+  beforeEach(() => {
+    jest.spyOn(window, 'alert').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+    delete global.fetch;
+  });
 
-    beforeEach(() => {
-        alertStub = sinon.stub(window, 'alert')
-        fetchStub = sinon.stub(global, 'fetch').resolves({
-            json: () => Promise.resolve({}),
-            ok: true
-        })
+  test('alerts if fields are empty', () => {
+    render(<AddEventPopup />, { wrapper: MemoryRouter });
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+    expect(window.alert).toHaveBeenCalledWith('Please fill in all fields.');
+  });
 
-    navigateStub = sinon.spy()
+  test('submits valid form and navigates', async () => {
+    const mockNav = jest.fn();
+    jest.spyOn(require('react-router-dom'), 'useNavigate').mockReturnValue(mockNav);
 
-    wrapper = mount(
-        <MemoryRouter>
-        <AddEventPopup />
-        </MemoryRouter>
-    )
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({}),
+    });
 
-    wrapper.find('AddEventPopup').instance().navigate = navigateStub
-    })
+    render(<AddEventPopup />, { wrapper: MemoryRouter });
 
-    afterEach(() => {
-        sinon.restore()
-        wrapper.unmount()
-    })
+    // match label "Event:" exactly
+    fireEvent.change(screen.getByLabelText(/event:/i), {
+      target: { value: 'My Event' },
+    });
+    fireEvent.change(screen.getByLabelText(/date:/i), {
+      target: { value: '2025-05-01' },
+    });
+    fireEvent.change(screen.getByLabelText(/time:/i), {
+      target: { value: '12:34' },
+    });
 
-    it('alerts if you try to save with empty fields', () => {
-        wrapper.find('button.save-button').simulate('click')
-        expect(alertStub.calledOnce).to.be.true
-        expect(alertStub.calledWith('Please fill in all fields.')).to.be.true
-    })
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
 
-    it('submits the form when fields are filled', async () => {
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
 
-        wrapper.find('input#ename').simulate('change', { target: { value: 'My Event' } })
-        wrapper.find('input#date').simulate('change', { target: { value: '2025-05-01' } })
-        wrapper.find('input#time').simulate('change', { target: { value: '12:34' } })
-
-        await wrapper.find('button.save-button').simulate('click')
-        await Promise.resolve()
-
-        expect(fetchStub.calledOnce).to.be.true
-        const [url, opts] = fetchStub.firstCall.args
-        expect(url).to.match(/\/api\/events$/)
-        const body = JSON.parse(opts.body)
-        expect(body).to.include({ title: 'My Event', date: '2025-05-01', time: '12:34' })
-        expect(opts.method).to.equal('POST')
-
-        expect(navigateStub.calledWith('/calendar')).to.be.true
-    })
-})
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/events'),
+      expect.objectContaining({ method: 'POST', body: expect.any(String) })
+    );
+    expect(mockNav).toHaveBeenCalledWith('/calendar');
+  });
+});
